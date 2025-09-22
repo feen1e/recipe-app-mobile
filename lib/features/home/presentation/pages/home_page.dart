@@ -1,15 +1,272 @@
-// lib/features/home/presentation/pages/home_page.dart
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
-class HomePage extends ConsumerWidget {
+import "../../data/models/post.dart";
+import "../providers/recipes_provider.dart";
+
+// ==== HOME PAGE WITH INFINITE SCROLL ====
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends ConsumerState<HomePage> {
+  final _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    _scrollController.addListener(() async {
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200) {
+        await ref.read(latestRecipesProvider.notifier).loadMore();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final recipesAsync = ref.watch(latestRecipesProvider);
+    final isLoadingMore = ref.watch(loadMoreStateProvider);
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Recipe App")),
-      body: const Column(),
+      appBar: AppBar(title: const Text("Recipe Feed")),
+      body: RefreshIndicator(
+        onRefresh: () async {
+          await ref.read(latestRecipesProvider.notifier).refresh();
+        },
+        child: recipesAsync.when(
+          data: (recipesResponse) {
+            final recipes = recipesResponse.recipes;
+
+            return ListView.builder(
+              controller: _scrollController,
+              itemCount: recipes.length + (recipesResponse.hasMore ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == recipes.length) {
+                  // Loading indicator at the bottom - only show when actually loading more
+                  return isLoadingMore
+                      ? const Padding(
+                          padding: EdgeInsets.all(16),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : const SizedBox.shrink();
+                }
+
+                final recipe = recipes[index];
+                final isUpdated = recipe.updatedAt.isAfter(recipe.createdAt);
+
+                return Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // User Row
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: recipe.author.avatarUrl != null
+                                ? NetworkImage(recipe.author.avatarUrl!)
+                                : null,
+                            child: recipe.author.avatarUrl == null
+                                ? Text(recipe.author.username.substring(0, 1).toUpperCase())
+                                : null,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            recipe.author.username,
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            isUpdated ? "updated a recipe:" : "created a recipe:",
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      // Recipe Preview
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute<void>(builder: (_) => RecipeDetailPage(recipe: recipe)),
+                          );
+                        },
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: recipe.imageUrl != null
+                                  ? Image.network(
+                                      recipe.imageUrl!,
+                                      width: 80,
+                                      height: 80,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (context, error, stackTrace) {
+                                        return Container(
+                                          width: 80,
+                                          height: 80,
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.image_not_supported),
+                                        );
+                                      },
+                                    )
+                                  : Container(
+                                      width: 80,
+                                      height: 80,
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.restaurant),
+                                    ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(recipe.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                  const SizedBox(height: 4),
+                                  if (recipe.description != null)
+                                    Text(
+                                      recipe.description!,
+                                      style: const TextStyle(color: Colors.black87),
+                                      maxLines: 3,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Divider(height: 24),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error: (error, stackTrace) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text("Error loading recipes", style: Theme.of(context).textTheme.headlineSmall),
+                const SizedBox(height: 8),
+                Text(
+                  error.toString(),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () async {
+                    await ref.read(latestRecipesProvider.notifier).refresh();
+                  },
+                  child: const Text("Retry"),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ==== DETAIL PAGE ====
+class RecipeDetailPage extends StatelessWidget {
+  final LatestRecipeResponseDto recipe;
+
+  const RecipeDetailPage({super.key, required this.recipe});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(recipe.title)),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // User Header
+            Row(
+              children: [
+                CircleAvatar(
+                  backgroundImage: recipe.author.avatarUrl != null ? NetworkImage(recipe.author.avatarUrl!) : null,
+                  child: recipe.author.avatarUrl == null
+                      ? Text(recipe.author.username.substring(0, 1).toUpperCase())
+                      : null,
+                ),
+                const SizedBox(width: 10),
+                Text(recipe.author.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // Recipe Image
+            if (recipe.imageUrl != null)
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  recipe.imageUrl!,
+                  width: double.infinity,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(12)),
+                      child: const Icon(Icons.image_not_supported, size: 64),
+                    );
+                  },
+                ),
+              ),
+            const SizedBox(height: 16),
+            // Name & Description
+            Text(recipe.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 12),
+            if (recipe.description != null) Text(recipe.description!, style: const TextStyle(fontSize: 16)),
+            const SizedBox(height: 20),
+            // Ingredients
+            const Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ...recipe.ingredients.map(
+              (ingredient) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 2),
+                child: Row(
+                  children: [
+                    const Text("• "),
+                    Expanded(child: Text(ingredient)),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            // Steps
+            const Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            ...recipe.steps.asMap().entries.map(
+              (entry) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text("${entry.key + 1}. ${entry.value}"),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

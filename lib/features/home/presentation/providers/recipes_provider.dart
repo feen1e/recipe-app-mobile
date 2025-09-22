@@ -1,0 +1,77 @@
+import "dart:developer";
+
+import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:riverpod_annotation/riverpod_annotation.dart";
+
+import "../../../../core/network/dio_provider.dart";
+import "../../data/models/post.dart";
+import "../../data/repositories/recipes_repository.dart";
+
+part "recipes_provider.g.dart";
+
+@riverpod
+RecipesRepository recipesRepository(Ref ref) {
+  final dio = ref.read(dioProvider);
+  return RecipesRepository(dio: dio);
+}
+
+@riverpod
+class LatestRecipes extends _$LatestRecipes {
+  @override
+  Future<LatestRecipesResponseDto> build() {
+    final repository = ref.read(recipesRepositoryProvider);
+    return repository.getLatestRecipes(limit: 10);
+  }
+
+  Future<void> loadMore() async {
+    final currentState = state.valueOrNull;
+    if (currentState == null || !currentState.hasMore) return;
+
+    try {
+      // Set load more loading state
+      ref.read(loadMoreStateProvider.notifier).setLoading(loading: true);
+
+      final repository = ref.read(recipesRepositoryProvider);
+      final nextPage = await repository.getLatestRecipes(cursor: currentState.nextCursor, limit: 10);
+
+      // Combine the current recipes with the new ones
+      final combinedRecipes = [...currentState.recipes, ...nextPage.recipes];
+
+      final updatedResponse = LatestRecipesResponseDto(
+        recipes: combinedRecipes,
+        nextCursor: nextPage.nextCursor,
+        hasMore: nextPage.hasMore,
+      );
+
+      state = AsyncValue.data(updatedResponse);
+    } on Exception catch (e) {
+      // Keep current data even on error
+      log("Error loading more recipes: $e");
+    } finally {
+      // Always clear the loading state
+      ref.read(loadMoreStateProvider.notifier).setLoading(loading: false);
+    }
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncValue<LatestRecipesResponseDto>.loading();
+    try {
+      final repository = ref.read(recipesRepositoryProvider);
+      final response = await repository.getLatestRecipes(limit: 10);
+      state = AsyncValue.data(response);
+    } on Exception catch (e, stackTrace) {
+      state = AsyncValue<LatestRecipesResponseDto>.error(e, stackTrace);
+    }
+  }
+}
+
+// Separate provider to track load more loading state
+@riverpod
+class LoadMoreState extends _$LoadMoreState {
+  @override
+  bool build() => false;
+
+  void setLoading({required bool loading}) {
+    state = loading;
+  }
+}
