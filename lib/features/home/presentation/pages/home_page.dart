@@ -1,10 +1,10 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
-import "../../data/models/post.dart";
+import "../../../../core/constants/routes.dart";
 import "../providers/recipes_provider.dart";
 
-// ==== HOME PAGE WITH INFINITE SCROLL ====
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
@@ -52,7 +52,6 @@ class _HomePageState extends ConsumerState<HomePage> {
               itemCount: recipes.length + (recipesResponse.hasMore ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == recipes.length) {
-                  // Loading indicator at the bottom - only show when actually loading more
                   return isLoadingMore
                       ? const Padding(
                           padding: EdgeInsets.all(16),
@@ -97,10 +96,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                       InkWell(
                         borderRadius: BorderRadius.circular(8),
                         onTap: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute<void>(builder: (_) => RecipeDetailPage(recipe: recipe)),
-                          );
+                          await context.push("${Routes.recipeDetails}/${recipe.id}");
                         },
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,90 +178,11 @@ class _HomePageState extends ConsumerState<HomePage> {
           ),
         ),
       ),
-    );
-  }
-}
-
-// ==== DETAIL PAGE ====
-class RecipeDetailPage extends StatelessWidget {
-  final LatestRecipeResponseDto recipe;
-
-  const RecipeDetailPage({super.key, required this.recipe});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(recipe.title)),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // User Header
-            Row(
-              children: [
-                CircleAvatar(
-                  backgroundImage: recipe.author.avatarUrl != null ? NetworkImage(recipe.author.avatarUrl!) : null,
-                  child: recipe.author.avatarUrl == null
-                      ? Text(recipe.author.username.substring(0, 1).toUpperCase())
-                      : null,
-                ),
-                const SizedBox(width: 10),
-                Text(recipe.author.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            // Recipe Image
-            if (recipe.imageUrl != null)
-              ClipRRect(
-                borderRadius: BorderRadius.circular(12),
-                child: Image.network(
-                  recipe.imageUrl!,
-                  width: double.infinity,
-                  height: 200,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(12)),
-                      child: const Icon(Icons.image_not_supported, size: 64),
-                    );
-                  },
-                ),
-              ),
-            const SizedBox(height: 16),
-            // Name & Description
-            Text(recipe.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 12),
-            if (recipe.description != null) Text(recipe.description!, style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 20),
-            // Ingredients
-            const Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            ...recipe.ingredients.map(
-              (ingredient) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 2),
-                child: Row(
-                  children: [
-                    const Text("• "),
-                    Expanded(child: Text(ingredient)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-            // Steps
-            const Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 8),
-            ...recipe.steps.asMap().entries.map(
-              (entry) => Padding(
-                padding: const EdgeInsets.symmetric(vertical: 4),
-                child: Text("${entry.key + 1}. ${entry.value}"),
-              ),
-            ),
-          ],
-        ),
+      floatingActionButton: FloatingActionButton(
+        child: const Icon(Icons.add),
+        onPressed: () async {
+          await context.push(Routes.createOrUpdateRecipe);
+        },
       ),
     );
   }

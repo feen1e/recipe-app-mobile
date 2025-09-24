@@ -18,7 +18,7 @@ RecipesRepository recipesRepository(Ref ref) {
 @riverpod
 class LatestRecipes extends _$LatestRecipes {
   @override
-  Future<LatestRecipesResponseDto> build() {
+  Future<RecipesResponseDto> build() {
     final repository = ref.read(recipesRepositoryProvider);
     return repository.getLatestRecipes(limit: 10);
   }
@@ -37,7 +37,7 @@ class LatestRecipes extends _$LatestRecipes {
       // Combine the current recipes with the new ones
       final combinedRecipes = [...currentState.recipes, ...nextPage.recipes];
 
-      final updatedResponse = LatestRecipesResponseDto(
+      final updatedResponse = RecipesResponseDto(
         recipes: combinedRecipes,
         nextCursor: nextPage.nextCursor,
         hasMore: nextPage.hasMore,
@@ -54,13 +54,13 @@ class LatestRecipes extends _$LatestRecipes {
   }
 
   Future<void> refresh() async {
-    state = const AsyncValue<LatestRecipesResponseDto>.loading();
+    state = const AsyncValue<RecipesResponseDto>.loading();
     try {
       final repository = ref.read(recipesRepositoryProvider);
       final response = await repository.getLatestRecipes(limit: 10);
       state = AsyncValue.data(response);
     } on Exception catch (e, stackTrace) {
-      state = AsyncValue<LatestRecipesResponseDto>.error(e, stackTrace);
+      state = AsyncValue<RecipesResponseDto>.error(e, stackTrace);
     }
   }
 }

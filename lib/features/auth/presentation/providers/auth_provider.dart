@@ -1,10 +1,11 @@
 import "dart:async";
 
+import "package:dio/dio.dart";
 import "package:flutter/widgets.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:riverpod_annotation/riverpod_annotation.dart";
 
-import "../../../../core/network/dio_provider.dart";
+import "../../../../core/config/app_config.dart";
 import "../../data/models/auth_state.dart";
 import "../../data/repositories/authentication_repository.dart";
 import "../../data/repositories/local_authentication_repository.dart";
@@ -61,10 +62,18 @@ class AuthNotifier extends _$AuthNotifier {
 
 @riverpod
 AuthenticationRepository authenticationRepository(Ref ref) {
-  final dioInstance = ref.read(dioProvider);
+  // Create a separate Dio instance for auth to avoid circular dependency
+  final authDio = Dio(
+    BaseOptions(
+      baseUrl: AppConfig.baseUrl,
+      connectTimeout: const Duration(seconds: 30),
+      receiveTimeout: const Duration(seconds: 30),
+    ),
+  );
+
   return AuthenticationRepository(
     localRepository: LocalAuthenticationRepository(),
-    remoteRepository: RemoteAuthenticationRepository(dio: dioInstance),
+    remoteRepository: RemoteAuthenticationRepository(dio: authDio),
   );
 }
 

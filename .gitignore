@@ -44,6 +44,15 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android local build files
+android/local.properties
+android/.gradle/
+android/.kotlin/
+android/build/
+
+# Environment files
+*.env
+
 # Generated files
 *.g.dart
 *.freezed.dart

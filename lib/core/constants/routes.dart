@@ -5,4 +5,7 @@ class Routes {
   static const discoverRecipes = "/discover";
   static const collections = "/collections";
   static const profile = "/profile";
+
+  static const createOrUpdateRecipe = "/create-or-update-recipe";
+  static const recipeDetails = "/recipe-details";
 }

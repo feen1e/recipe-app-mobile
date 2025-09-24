@@ -11,8 +11,8 @@ abstract class AuthorDto with _$AuthorDto {
 }
 
 @freezed
-abstract class LatestRecipeResponseDto with _$LatestRecipeResponseDto {
-  const factory LatestRecipeResponseDto({
+abstract class RecipeResponseDto with _$RecipeResponseDto {
+  const factory RecipeResponseDto({
     required String id,
     required String title,
     String? description,
@@ -22,18 +22,18 @@ abstract class LatestRecipeResponseDto with _$LatestRecipeResponseDto {
     required DateTime createdAt,
     required DateTime updatedAt,
     required AuthorDto author,
-  }) = _LatestRecipeResponseDto;
+  }) = _RecipeResponseDto;
 
-  factory LatestRecipeResponseDto.fromJson(Map<String, dynamic> json) => _$LatestRecipeResponseDtoFromJson(json);
+  factory RecipeResponseDto.fromJson(Map<String, dynamic> json) => _$RecipeResponseDtoFromJson(json);
 }
 
 @freezed
-abstract class LatestRecipesResponseDto with _$LatestRecipesResponseDto {
-  const factory LatestRecipesResponseDto({
-    required List<LatestRecipeResponseDto> recipes,
+abstract class RecipesResponseDto with _$RecipesResponseDto {
+  const factory RecipesResponseDto({
+    required List<RecipeResponseDto> recipes,
     String? nextCursor,
     required bool hasMore,
-  }) = _LatestRecipesResponseDto;
+  }) = _RecipesResponseDto;
 
-  factory LatestRecipesResponseDto.fromJson(Map<String, dynamic> json) => _$LatestRecipesResponseDtoFromJson(json);
+  factory RecipesResponseDto.fromJson(Map<String, dynamic> json) => _$RecipesResponseDtoFromJson(json);
 }

@@ -1,5 +1,7 @@
+import "package:flutter/foundation.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:logging/logging.dart";
 import "core/router/app_router.dart";
 import "core/theme/app_theme.dart";
 import "core/theme/local_theme_repository.dart";
@@ -7,6 +9,14 @@ import "core/theme/theme_notifier.dart";
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    if (kDebugMode) {
+      print("${record.level.name}: ${record.time}: ${record.loggerName}: ${record.message}");
+    }
+  });
+
   runApp(const ProviderScope(child: MyApp()));
 }
 

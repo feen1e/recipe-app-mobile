@@ -8,10 +8,12 @@ import "../../features/auth/presentation/pages/login_page.dart";
 import "../../features/auth/presentation/pages/register_page.dart";
 import "../../features/auth/presentation/providers/auth_provider.dart";
 import "../../features/collections/presentation/pages/collections_page.dart";
+import "../../features/create_or_update_recipe/presentation/pages/create_or_update_recipe_page.dart";
 import "../../features/discover_recipes/presentation/pages/discover_recipes_page.dart";
 import "../../features/home/presentation/pages/home_page.dart";
 import "../../features/navigation/presentation/pages/main_navigation_page.dart";
 import "../../features/profile/presentation/pages/profile_page.dart";
+import "../../features/recipe_details/presentation/pages/recipe_details_page.dart";
 import "../constants/routes.dart";
 
 part "app_router.g.dart";
@@ -55,6 +57,11 @@ GoRouter goRouter(Ref ref) {
           GoRoute(path: Routes.collections, builder: (context, state) => const CollectionsPage()),
           GoRoute(path: Routes.profile, builder: (context, state) => const ProfilePage()),
         ],
+      ),
+      GoRoute(path: Routes.createOrUpdateRecipe, builder: (context, state) => const CreateOrUpdateRecipePage()),
+      GoRoute(
+        path: "${Routes.recipeDetails}/:id",
+        builder: (context, state) => RecipeDetailsPage(recipeId: state.pathParameters["id"]!),
       ),
     ],
   );

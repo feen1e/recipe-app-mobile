@@ -9,7 +9,7 @@ class RecipesRepository {
 
   RecipesRepository({required Dio dio}) : _dio = dio;
 
-  Future<LatestRecipesResponseDto> getLatestRecipes({String? cursor, int? limit}) async {
+  Future<RecipesResponseDto> getLatestRecipes({String? cursor, int? limit}) async {
     try {
       final queryParams = <String, dynamic>{};
 
@@ -30,7 +30,7 @@ class RecipesRepository {
       log("Latest recipes response data: ${response.data}");
 
       if (response.data != null) {
-        return LatestRecipesResponseDto.fromJson(response.data!);
+        return RecipesResponseDto.fromJson(response.data!);
       } else {
         throw Exception("Failed to fetch latest recipes: Empty response from server");
       }

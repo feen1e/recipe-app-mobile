@@ -6,5 +6,13 @@ class ApiEndpoints {
   // recipes
   static const recipesLatest = "/recipes/latest";
 
-  // other
+  static const recipesCRUD = "/recipes";
+
+  // image upload
+  static const imageUpload = "/uploads";
+
+  // profile/user endpoints
+  static const userProfile = "/users";
+  static const userRecipes = "/recipes/user/";
+  static const userRatings = "/ratings";
 }
