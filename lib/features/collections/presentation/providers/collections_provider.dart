@@ -21,6 +21,7 @@ CollectionsRepository collectionsRepository(Ref ref) {
 class Favorites extends _$Favorites {
   @override
   Future<List<RecipeDetailsDto>> build() async {
+    final start = DateTime.now();
     final repository = ref.read(collectionsRepositoryProvider);
     final username = await ref.read(currentUsernameProvider.future);
 
@@ -28,7 +29,11 @@ class Favorites extends _$Favorites {
       throw Exception("User not authenticated");
     }
 
-    return repository.getFavorites(username);
+    final result = await repository.getFavorites(username);
+    final end = DateTime.now();
+    // ignore: avoid_print
+    print("Favorites.build took ${end.difference(start).inMilliseconds}ms");
+    return result;
   }
 
   Future<void> refresh() async {
@@ -54,6 +59,7 @@ class Favorites extends _$Favorites {
 class Collections extends _$Collections {
   @override
   Future<List<CollectionDto>> build() async {
+    final start = DateTime.now();
     final repository = ref.read(collectionsRepositoryProvider);
     final username = await ref.read(currentUsernameProvider.future);
 
@@ -61,7 +67,11 @@ class Collections extends _$Collections {
       throw Exception("User not authenticated");
     }
 
-    return repository.getCollections(username);
+    final result = await repository.getCollections(username);
+    final end = DateTime.now();
+    // ignore: avoid_print
+    print("Collections.build took ${end.difference(start).inMilliseconds}ms");
+    return result;
   }
 
   Future<void> refresh() async {

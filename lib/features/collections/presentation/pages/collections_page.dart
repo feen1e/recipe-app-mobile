@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../../recipe_details/data/models/recipe.dart";
 import "../../data/models/collection.dart";
 import "../providers/collections_provider.dart";
@@ -17,7 +18,10 @@ class CollectionsPage extends ConsumerWidget {
     final collectionsState = ref.watch(collectionsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Collections"), backgroundColor: Theme.of(context).colorScheme.inversePrimary),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).collections),
+        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait<void>([
@@ -28,48 +32,61 @@ class CollectionsPage extends ConsumerWidget {
         child: CustomScrollView(
           slivers: [
             // Favorites Section
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.all(16),
-                child: Text("Favorites", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.all(16),
+                child: Text(
+                  AppLocalizations.of(context).favorites,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            _buildFavoritesSection(favoritesState, ref),
+            _buildFavoritesSection(context, favoritesState, ref),
 
             // Collections Section
-            const SliverToBoxAdapter(
+            SliverToBoxAdapter(
               child: Padding(
-                padding: EdgeInsets.fromLTRB(16, 32, 16, 16),
-                child: Text("My Collections", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                padding: const EdgeInsets.fromLTRB(16, 32, 16, 16),
+                child: Text(
+                  AppLocalizations.of(context).myCollections,
+                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-            _buildCollectionsSection(collectionsState, ref),
+            _buildCollectionsSection(context, collectionsState, ref),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildFavoritesSection(AsyncValue<List<RecipeDetailsDto>> favoritesState, WidgetRef ref) {
+  Widget _buildFavoritesSection(
+    BuildContext context,
+    AsyncValue<List<RecipeDetailsDto>> favoritesState,
+    WidgetRef ref,
+  ) {
     return favoritesState.when(
       data: (favoriteRecipes) {
         if (favoriteRecipes.isEmpty) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      Icon(Icons.favorite_border, size: 48, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text("No favorites yet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                      SizedBox(height: 8),
+                      const Icon(Icons.favorite_border, size: 48, color: Colors.grey),
+                      const SizedBox(height: 16),
                       Text(
-                        "Start favoriting recipes to see them here!",
+                        AppLocalizations.of(context).noFavoritesYet,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context).startFavoriting,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -110,7 +127,10 @@ class CollectionsPage extends ConsumerWidget {
                 children: [
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  const Text("Failed to load favorites", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text(
+                    AppLocalizations.of(context).failedToLoadFavorites,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     error.toString(),
@@ -120,7 +140,7 @@ class CollectionsPage extends ConsumerWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => ref.read(favoritesProvider.notifier).refresh(),
-                    child: const Text("Retry"),
+                    child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
               ),
@@ -131,26 +151,33 @@ class CollectionsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCollectionsSection(AsyncValue<List<CollectionDto>> collectionsState, WidgetRef ref) {
+  Widget _buildCollectionsSection(
+    BuildContext context,
+    AsyncValue<List<CollectionDto>> collectionsState,
+    WidgetRef ref,
+  ) {
     return collectionsState.when(
       data: (collectionsData) {
         if (collectionsData.isEmpty) {
-          return const SliverToBoxAdapter(
+          return SliverToBoxAdapter(
             child: Padding(
-              padding: EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
               child: Card(
                 child: Padding(
-                  padding: EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(24),
                   child: Column(
                     children: [
-                      Icon(Icons.collections_bookmark_outlined, size: 48, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text("No collections yet", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500)),
-                      SizedBox(height: 8),
+                      const Icon(Icons.collections_bookmark_outlined, size: 48, color: Colors.grey),
+                      const SizedBox(height: 16),
                       Text(
-                        "Create your first collection to organize recipes!",
+                        AppLocalizations.of(context).noCollectionsYet,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        AppLocalizations.of(context).createFirstCollection,
                         textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.grey),
+                        style: const TextStyle(color: Colors.grey),
                       ),
                     ],
                   ),
@@ -183,7 +210,10 @@ class CollectionsPage extends ConsumerWidget {
                 children: [
                   const Icon(Icons.error_outline, size: 48, color: Colors.red),
                   const SizedBox(height: 16),
-                  const Text("Failed to load collections", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
+                  Text(
+                    AppLocalizations.of(context).failedToLoadCollections,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     error.toString(),
@@ -193,7 +223,7 @@ class CollectionsPage extends ConsumerWidget {
                   const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () => ref.read(collectionsProvider.notifier).refresh(),
-                    child: const Text("Retry"),
+                    child: Text(AppLocalizations.of(context).retry),
                   ),
                 ],
               ),

@@ -1,8 +1,9 @@
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
-import "../../../../core/constants/app_strings.dart";
+
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 
 class MainNavigationPage extends ConsumerWidget {
   final Widget child;
@@ -17,11 +18,11 @@ class MainNavigationPage extends ConsumerWidget {
         type: BottomNavigationBarType.fixed,
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: AppStrings.navHome),
-          BottomNavigationBarItem(icon: Icon(Icons.restaurant), label: AppStrings.navDiscover),
-          BottomNavigationBarItem(icon: Icon(Icons.favorite), label: AppStrings.navCollections),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: AppStrings.navProfile),
+        items: [
+          BottomNavigationBarItem(icon: const Icon(Icons.home), label: AppLocalizations.of(context).navHome),
+          BottomNavigationBarItem(icon: const Icon(Icons.restaurant), label: AppLocalizations.of(context).navDiscover),
+          BottomNavigationBarItem(icon: const Icon(Icons.favorite), label: AppLocalizations.of(context).collections),
+          BottomNavigationBarItem(icon: const Icon(Icons.person), label: AppLocalizations.of(context).navProfile),
         ],
       ),
     );

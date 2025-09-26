@@ -6,6 +6,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
 import "../../data/models/profile.dart";
 import "../providers/profile_provider.dart";
@@ -25,7 +26,7 @@ class ProfilePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Profile"),
+        title: Text(AppLocalizations.of(context).profile),
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) async {
@@ -35,9 +36,15 @@ class ProfilePage extends ConsumerWidget {
               }
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem<String>(
                 value: "logout",
-                child: Row(children: [Icon(Icons.logout), SizedBox(width: 8), Text("Logout")]),
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).logout),
+                  ],
+                ),
               ),
             ],
             icon: const Icon(Icons.settings),
@@ -56,6 +63,7 @@ class ProfilePage extends ConsumerWidget {
               children: [
                 // Profile Header
                 _buildProfileHeader(
+                  context,
                   completeProfile.profile,
                   completeProfile.recipes.length,
                   completeProfile.ratings.length,
@@ -85,7 +93,7 @@ class ProfilePage extends ConsumerWidget {
                 onPressed: () {
                   ref.invalidate(completeProfileProvider(username));
                 },
-                child: const Text("Retry"),
+                child: Text(AppLocalizations.of(context).retry),
               ),
             ],
           ),
@@ -94,7 +102,7 @@ class ProfilePage extends ConsumerWidget {
     );
   }
 
-  Widget _buildProfileHeader(Profile profile, int actualRecipesCount, int actualRatingsCount) {
+  Widget _buildProfileHeader(BuildContext context, Profile profile, int actualRecipesCount, int actualRatingsCount) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -117,16 +125,15 @@ class ProfilePage extends ConsumerWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
-                spacing: 20,
                 children: [
                   Text(profile.username, style: const TextStyle(fontSize: 32, fontWeight: FontWeight.bold)),
-
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    spacing: 50,
                     children: [
-                      _buildStatItem("Recipes", actualRecipesCount),
-                      _buildStatItem("Ratings", actualRatingsCount),
+                      _buildStatItem(AppLocalizations.of(context).recipes, actualRecipesCount),
+                      const SizedBox(width: 50),
+                      _buildStatItem(AppLocalizations.of(context).ratings, actualRatingsCount),
                     ],
                   ),
                 ],
@@ -161,18 +168,18 @@ class ProfilePage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("My Recipes", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context).myRecipes, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
 
         if (recipes.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(32),
+          Padding(
+            padding: const EdgeInsets.all(32),
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.restaurant, size: 48, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text("No recipes yet", style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.restaurant, size: 48, color: Colors.grey),
+                  const SizedBox(height: 8),
+                  Text(AppLocalizations.of(context).noRecipesYet, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),
@@ -269,18 +276,18 @@ class ProfilePage extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text("My Ratings", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text(AppLocalizations.of(context).myRatings, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
         const SizedBox(height: 12),
 
         if (ratings.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(32),
+          Padding(
+            padding: const EdgeInsets.all(32),
             child: Center(
               child: Column(
                 children: [
-                  Icon(Icons.star_border, size: 48, color: Colors.grey),
-                  SizedBox(height: 8),
-                  Text("No ratings yet", style: TextStyle(color: Colors.grey)),
+                  const Icon(Icons.star_border, size: 48, color: Colors.grey),
+                  const SizedBox(height: 8),
+                  Text(AppLocalizations.of(context).noRatingsYet, style: const TextStyle(color: Colors.grey)),
                 ],
               ),
             ),

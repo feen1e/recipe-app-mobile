@@ -36,6 +36,8 @@ class RecipeDetailsPage extends ConsumerWidget {
         final userId = ref.watch(currentUserIdProvider);
         final isFavorite = ref.watch(favoritesProvider).value?.any((fav) => fav.id == recipe.id) ?? false;
 
+        final avatarExists = userInfo.value?.avatarUrl != null;
+
         return Scaffold(
           appBar: AppBar(
             title: Text(recipe.title),
@@ -92,8 +94,8 @@ class RecipeDetailsPage extends ConsumerWidget {
                   data: (user) => Row(
                     children: [
                       CircleAvatar(
-                        backgroundImage: user.avatarUrl != null ? CachedNetworkImageProvider(user.avatarUrl!) : null,
-                        child: user.avatarUrl == null ? Text(user.username.substring(0, 1).toUpperCase()) : null,
+                        backgroundImage: avatarExists ? CachedNetworkImageProvider(user.avatarUrl!) : null,
+                        child: !avatarExists ? Text(user.username.substring(0, 1).toUpperCase()) : null,
                       ),
                       const SizedBox(width: 10),
                       Text(user.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),

@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../providers/recipes_provider.dart";
 
 class HomePage extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _HomePageState extends ConsumerState<HomePage> {
     final isLoadingMore = ref.watch(loadMoreStateProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Recipe Feed")),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).recipeFeed)),
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(latestRecipesProvider.notifier).refresh();
@@ -63,6 +64,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
                 final recipe = recipes[index];
                 final isUpdated = recipe.updatedAt.isAfter(recipe.createdAt);
+                final avatarExists = recipe.author.avatarUrl != null;
 
                 return Padding(
                   padding: const EdgeInsets.all(12),
@@ -73,12 +75,8 @@ class _HomePageState extends ConsumerState<HomePage> {
                       Row(
                         children: [
                           CircleAvatar(
-                            backgroundImage: recipe.author.avatarUrl != null
-                                ? CachedNetworkImageProvider(recipe.author.avatarUrl!)
-                                : null,
-                            child: recipe.author.avatarUrl == null
-                                ? Text(recipe.author.username.substring(0, 1).toUpperCase())
-                                : null,
+                            backgroundImage: avatarExists ? CachedNetworkImageProvider(recipe.author.avatarUrl!) : null,
+                            child: !avatarExists ? Text(recipe.author.username.substring(0, 1).toUpperCase()) : null,
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -87,7 +85,9 @@ class _HomePageState extends ConsumerState<HomePage> {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            isUpdated ? "updated a recipe:" : "created a recipe:",
+                            isUpdated
+                                ? AppLocalizations.of(context).updatedRecipe
+                                : AppLocalizations.of(context).createdRecipe,
                             style: const TextStyle(color: Colors.grey),
                           ),
                         ],
@@ -161,7 +161,10 @@ class _HomePageState extends ConsumerState<HomePage> {
               children: [
                 const Icon(Icons.error, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
-                Text("Error loading recipes", style: Theme.of(context).textTheme.headlineSmall),
+                Text(
+                  AppLocalizations.of(context).errorLoadingRecipes,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
                 const SizedBox(height: 8),
                 Text(
                   error.toString(),
@@ -173,7 +176,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   onPressed: () async {
                     await ref.read(latestRecipesProvider.notifier).refresh();
                   },
-                  child: const Text("Retry"),
+                  child: Text(AppLocalizations.of(context).retry),
                 ),
               ],
             ),
