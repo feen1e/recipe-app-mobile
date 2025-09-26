@@ -163,7 +163,7 @@ class CollectionsPage extends ConsumerWidget {
         return SliverList(
           delegate: SliverChildBuilderDelegate((context, index) {
             final collection = collectionsData[index];
-            return _buildCollectionCard(collection);
+            return _buildCollectionCard(context, collection);
           }, childCount: collectionsData.length),
         );
       },
@@ -255,12 +255,12 @@ class CollectionsPage extends ConsumerWidget {
     );
   }
 
-  Widget _buildCollectionCard(CollectionDto collection) {
+  Widget _buildCollectionCard(BuildContext context, CollectionDto collection) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: InkWell(
-        onTap: () {
-          // ! TODO implement collection details and handle navigation
+        onTap: () async {
+          await context.push("${Routes.collectionDetails}/${collection.id}");
         },
         child: Padding(
           padding: const EdgeInsets.all(16),

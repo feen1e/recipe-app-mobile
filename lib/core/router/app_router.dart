@@ -7,6 +7,7 @@ import "../../features/auth/data/models/auth_state.dart";
 import "../../features/auth/presentation/pages/login_page.dart";
 import "../../features/auth/presentation/pages/register_page.dart";
 import "../../features/auth/presentation/providers/auth_provider.dart";
+import "../../features/collection_details/presentation/pages/collection_details_page.dart";
 import "../../features/collections/presentation/pages/collections_page.dart";
 import "../../features/create_or_update_recipe/presentation/pages/create_or_update_recipe_page.dart";
 import "../../features/discover_recipes/presentation/pages/discover_recipes_page.dart";
@@ -69,6 +70,10 @@ GoRouter goRouter(Ref ref) {
       GoRoute(
         path: "${Routes.recipeDetails}/:id",
         builder: (context, state) => RecipeDetailsPage(recipeId: state.pathParameters["id"]!),
+      ),
+      GoRoute(
+        path: "${Routes.collectionDetails}/:id",
+        builder: (context, state) => CollectionDetailsPage(collectionId: state.pathParameters["id"]!),
       ),
     ],
   );

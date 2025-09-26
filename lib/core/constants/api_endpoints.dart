@@ -20,4 +20,5 @@ class ApiEndpoints {
   // collections and favorites
   static const favorites = "/favorites";
   static const collectionsUser = "/collections/user";
+  static const collectionsCRUD = "/collections";
 }
