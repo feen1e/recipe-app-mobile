@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -73,7 +74,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                         children: [
                           CircleAvatar(
                             backgroundImage: recipe.author.avatarUrl != null
-                                ? NetworkImage(recipe.author.avatarUrl!)
+                                ? CachedNetworkImageProvider(recipe.author.avatarUrl!)
                                 : null,
                             child: recipe.author.avatarUrl == null
                                 ? Text(recipe.author.username.substring(0, 1).toUpperCase())
@@ -104,12 +105,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                             ClipRRect(
                               borderRadius: BorderRadius.circular(8),
                               child: recipe.imageUrl != null
-                                  ? Image.network(
-                                      recipe.imageUrl!,
+                                  ? CachedNetworkImage(
+                                      imageUrl: recipe.imageUrl!,
                                       width: 80,
                                       height: 80,
                                       fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) {
+                                      placeholder: (context, url) => const CircularProgressIndicator(),
+                                      errorWidget: (context, url, error) {
                                         return Container(
                                           width: 80,
                                           height: 80,

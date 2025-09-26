@@ -1,3 +1,6 @@
+import "dart:developer";
+
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -12,10 +15,13 @@ class ProfilePage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: Replace with actual current user's username from auth
-    const currentUsername = "john_doe";
+    final String username = ref
+        .watch(currentUsernameProvider)
+        .maybeWhen(data: (username) => username ?? "", orElse: () => "");
 
-    final completeProfileAsync = ref.watch(completeProfileProvider(currentUsername));
+    log("Building ProfilePage for username: $username");
+
+    final completeProfileAsync = ref.watch(completeProfileProvider(username));
 
     return Scaffold(
       appBar: AppBar(
@@ -41,7 +47,7 @@ class ProfilePage extends ConsumerWidget {
       body: completeProfileAsync.when(
         data: (completeProfile) => RefreshIndicator(
           onRefresh: () async {
-            await ref.read(completeProfileProvider(currentUsername).notifier).refresh(currentUsername);
+            await ref.read(completeProfileProvider(username).notifier).refresh(username);
           },
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -77,7 +83,7 @@ class ProfilePage extends ConsumerWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref.invalidate(completeProfileProvider(currentUsername));
+                  ref.invalidate(completeProfileProvider(username));
                 },
                 child: const Text("Retry"),
               ),
@@ -146,6 +152,12 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Widget _buildRecipesSection(BuildContext context, List<Recipe> recipes) {
+    final gridRows = recipes.length == 1
+        ? 1
+        : recipes.length == 2
+        ? 2
+        : 3;
+    final gridHeight = gridRows * 120.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -167,14 +179,14 @@ class ProfilePage extends ConsumerWidget {
           )
         else
           SizedBox(
-            height: 350, // Increased height for bigger items
+            height: gridHeight,
             child: GridView.builder(
               scrollDirection: Axis.horizontal,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3, // Two rows
-                childAspectRatio: 0.35, // Increased for longer horizontal cards
-                mainAxisSpacing: 12, // Spacing between items horizontally
-                crossAxisSpacing: 8, // Spacing between rows
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridRows,
+                childAspectRatio: 0.35,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 8,
               ),
               itemCount: recipes.length,
               itemBuilder: (context, index) {
@@ -194,26 +206,27 @@ class ProfilePage extends ConsumerWidget {
       },
       child: Card(
         child: Padding(
-          padding: const EdgeInsets.all(8), // Reduced padding
+          padding: const EdgeInsets.all(8),
           child: Row(
             children: [
               // Recipe Image
               ClipRRect(
                 borderRadius: BorderRadius.circular(4),
                 child: Container(
-                  width: 80, // Increased image size
-                  height: 80, // Increased image size
+                  width: 80,
+                  height: 80,
                   color: Colors.grey[300],
                   child: recipe.imageUrl != null
-                      ? Image.network(
-                          recipe.imageUrl!,
+                      ? CachedNetworkImage(
+                          imageUrl: recipe.imageUrl!,
                           fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) => const Icon(Icons.restaurant, size: 32),
+                          placeholder: (context, url) => const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) => const Icon(Icons.restaurant, size: 32),
                         )
                       : const Icon(Icons.restaurant, size: 32),
                 ),
               ),
-              const SizedBox(width: 10), // Slightly increased spacing
+              const SizedBox(width: 10),
               // Recipe Info
               Expanded(
                 child: Column(
@@ -223,7 +236,7 @@ class ProfilePage extends ConsumerWidget {
                   children: [
                     Text(
                       recipe.title,
-                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold), // Increased font size
+                      style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -231,7 +244,7 @@ class ProfilePage extends ConsumerWidget {
                       const SizedBox(height: 3),
                       Text(
                         recipe.description!,
-                        style: const TextStyle(fontSize: 13, color: Colors.grey), // Increased font size
+                        style: const TextStyle(fontSize: 13, color: Colors.grey),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -247,6 +260,12 @@ class ProfilePage extends ConsumerWidget {
   }
 
   Widget _buildRatingsSection(BuildContext context, List<Rating> ratings) {
+    final gridRows = ratings.length == 1
+        ? 1
+        : ratings.length == 2
+        ? 2
+        : 3;
+    final gridHeight = gridRows * 120.0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -268,13 +287,14 @@ class ProfilePage extends ConsumerWidget {
           )
         else
           SizedBox(
-            height: 320, // Same height as recipes section
+            height: gridHeight,
             child: GridView.builder(
               scrollDirection: Axis.horizontal,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // Two rows
-                mainAxisSpacing: 12, // Spacing between items horizontally
-                crossAxisSpacing: 8, // Spacing between rows
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: gridRows,
+                childAspectRatio: 0.35,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 8,
               ),
               itemCount: ratings.length,
               itemBuilder: (context, index) {
@@ -290,7 +310,7 @@ class ProfilePage extends ConsumerWidget {
   Widget _buildRatingCard(Rating rating) {
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(6), // Reduced padding
+        padding: const EdgeInsets.all(6),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -305,18 +325,15 @@ class ProfilePage extends ConsumerWidget {
                     return Icon(
                       index < rating.stars ? Icons.star : Icons.star_border,
                       color: index < rating.stars ? Colors.amber : Colors.grey,
-                      size: 18, // Increased star size
+                      size: 18,
                     );
                   }),
                 ),
                 const SizedBox(height: 3),
-                Text(
-                  "${rating.stars}/5",
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
-                ), // Increased font size
+                Text("${rating.stars}/5", style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
               ],
             ),
-            const SizedBox(width: 10), // Slightly increased spacing
+            const SizedBox(width: 10),
             // Rating Info
             Expanded(
               child: Column(
@@ -325,7 +342,7 @@ class ProfilePage extends ConsumerWidget {
                 children: [
                   Text(
                     rating.recipeName,
-                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold), // Increased font size
+                    style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -333,7 +350,7 @@ class ProfilePage extends ConsumerWidget {
                     const SizedBox(height: 3),
                     Text(
                       rating.review!,
-                      style: const TextStyle(fontSize: 13, color: Colors.grey), // Increased font size
+                      style: const TextStyle(fontSize: 13, color: Colors.grey),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,
                     ),

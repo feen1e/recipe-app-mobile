@@ -12,6 +12,7 @@ abstract class RecipeDetailsDto with _$RecipeDetailsDto {
     required List<String> ingredients,
     required List<String> steps,
     String? imageUrl,
+    required String authorId,
     required DateTime createdAt,
     required DateTime updatedAt,
   }) = _RecipeDetailsDto;

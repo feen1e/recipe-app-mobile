@@ -1,0 +1,88 @@
+import "dart:developer";
+
+import "package:dio/dio.dart";
+import "../../../../core/constants/api_endpoints.dart";
+import "../../../recipe_details/data/models/recipe.dart";
+import "../models/collection.dart";
+
+class CollectionsRepository {
+  final Dio _dio;
+
+  CollectionsRepository({required Dio dio}) : _dio = dio;
+
+  Future<List<RecipeDetailsDto>> getFavorites(String username) async {
+    try {
+      log("Fetching favorites for username: $username");
+      log("Endpoint: ${ApiEndpoints.favorites}/$username");
+
+      final response = await _dio.get<List<dynamic>>("${ApiEndpoints.favorites}/$username");
+
+      log("Favorites response status: ${response.statusCode}");
+      log("Favorites response data: ${response.data}");
+
+      if (response.data != null) {
+        return response.data!.map((json) => RecipeDetailsDto.fromJson(json as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception("Failed to fetch favorites: Empty response from server");
+      }
+    } on DioException catch (e) {
+      var errorMessage = "Failed to fetch favorites";
+
+      log("DioException type: ${e.type}");
+      log("DioException message: ${e.message}");
+      log("DioException response: ${e.response?.data}");
+
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final responseData = e.response!.data;
+        errorMessage = "Failed to fetch favorites ($statusCode): ${responseData?.toString() ?? 'Unknown error'}";
+      } else if (e.message != null) {
+        errorMessage = "Failed to fetch favorites: ${e.message}";
+      }
+
+      log("Error fetching favorites: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      log("Unexpected error fetching favorites: $e");
+      throw Exception("Failed to fetch favorites: $e");
+    }
+  }
+
+  Future<List<CollectionDto>> getCollections(String username) async {
+    try {
+      log("Fetching collections for username: $username");
+      log("Endpoint: ${ApiEndpoints.collectionsUser}/$username");
+
+      final response = await _dio.get<List<dynamic>>("${ApiEndpoints.collectionsUser}/$username");
+
+      log("Collections response status: ${response.statusCode}");
+      log("Collections response data: ${response.data}");
+
+      if (response.data != null) {
+        return response.data!.map((json) => CollectionDto.fromJson(json as Map<String, dynamic>)).toList();
+      } else {
+        throw Exception("Failed to fetch collections: Empty response from server");
+      }
+    } on DioException catch (e) {
+      var errorMessage = "Failed to fetch collections";
+
+      log("DioException type: ${e.type}");
+      log("DioException message: ${e.message}");
+      log("DioException response: ${e.response?.data}");
+
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final responseData = e.response!.data;
+        errorMessage = "Failed to fetch collections ($statusCode): ${responseData?.toString() ?? 'Unknown error'}";
+      } else if (e.message != null) {
+        errorMessage = "Failed to fetch collections: ${e.message}";
+      }
+
+      log("Error fetching collections: $errorMessage");
+      throw Exception(errorMessage);
+    } catch (e) {
+      log("Unexpected error fetching collections: $e");
+      throw Exception("Failed to fetch collections: $e");
+    }
+  }
+}

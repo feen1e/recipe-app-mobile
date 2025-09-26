@@ -12,4 +12,8 @@ class RecipeDetailsRepository {
     final response = await _dio.get<Map<String, dynamic>>("${ApiEndpoints.recipesCRUD}/$id");
     return response.data != null ? RecipeDetailsDto.fromJson(response.data!) : null;
   }
+
+  Future<void> deleteRecipe(String id) async {
+    await _dio.delete<Map<String, dynamic>>("${ApiEndpoints.recipesCRUD}/$id");
+  }
 }

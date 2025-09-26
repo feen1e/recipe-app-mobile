@@ -38,4 +38,12 @@ class AuthenticationRepository {
   Future<String?> getAccessToken() {
     return localRepository.getAccessToken();
   }
+
+  Future<String?> getUserId() {
+    return localRepository.getUserId();
+  }
+
+  Future<String?> getUsername() {
+    return localRepository.getUsername();
+  }
 }

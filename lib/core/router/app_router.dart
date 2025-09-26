@@ -13,6 +13,7 @@ import "../../features/discover_recipes/presentation/pages/discover_recipes_page
 import "../../features/home/presentation/pages/home_page.dart";
 import "../../features/navigation/presentation/pages/main_navigation_page.dart";
 import "../../features/profile/presentation/pages/profile_page.dart";
+import "../../features/recipe_details/data/models/recipe.dart";
 import "../../features/recipe_details/presentation/pages/recipe_details_page.dart";
 import "../constants/routes.dart";
 
@@ -58,7 +59,13 @@ GoRouter goRouter(Ref ref) {
           GoRoute(path: Routes.profile, builder: (context, state) => const ProfilePage()),
         ],
       ),
-      GoRoute(path: Routes.createOrUpdateRecipe, builder: (context, state) => const CreateOrUpdateRecipePage()),
+      GoRoute(
+        path: Routes.createOrUpdateRecipe,
+        builder: (context, state) {
+          final recipe = state.extra as RecipeDetailsDto?;
+          return CreateOrUpdateRecipePage(recipe: recipe);
+        },
+      ),
       GoRoute(
         path: "${Routes.recipeDetails}/:id",
         builder: (context, state) => RecipeDetailsPage(recipeId: state.pathParameters["id"]!),

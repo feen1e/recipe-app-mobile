@@ -61,8 +61,19 @@ class AuthNotifier extends _$AuthNotifier {
 }
 
 @riverpod
+Future<String?> currentUserId(Ref ref) {
+  final authRepository = ref.read(authenticationRepositoryProvider);
+  return authRepository.getUserId();
+}
+
+@riverpod
+Future<String?> currentUsername(Ref ref) {
+  final authRepository = ref.read(authenticationRepositoryProvider);
+  return authRepository.getUsername();
+}
+
+@riverpod
 AuthenticationRepository authenticationRepository(Ref ref) {
-  // Create a separate Dio instance for auth to avoid circular dependency
   final authDio = Dio(
     BaseOptions(
       baseUrl: AppConfig.baseUrl,

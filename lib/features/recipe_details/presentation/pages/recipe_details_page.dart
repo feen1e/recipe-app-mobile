@@ -1,7 +1,14 @@
+import "dart:async";
+
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
+import "package:go_router/go_router.dart";
 
+import "../../../../core/constants/routes.dart";
+import "../../../auth/presentation/providers/auth_provider.dart";
 import "../providers/recipe_details_provider.dart";
+import "../providers/user_info_provider.dart";
 
 class RecipeDetailsPage extends ConsumerWidget {
   final String recipeId;
@@ -11,52 +18,105 @@ class RecipeDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final recipeDetails = ref.watch(recipeDetailsProvider(recipeId));
-    // ! TODO: implement provider for getting user details: username, avatar;
     return recipeDetails.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, stackTrace) => Scaffold(body: Center(child: Text("Error: $error"))),
+      error: (error, stackTrace) {
+        unawaited(
+          Future.microtask(() {
+            if (context.mounted) {
+              context.pop();
+            }
+          }),
+        );
+        return const SizedBox.shrink();
+      },
       data: (recipe) {
+        final userInfo = ref.watch(userInfoProvider(recipe.authorId));
+        final userId = ref.watch(currentUserIdProvider);
+
         return Scaffold(
-          appBar: AppBar(title: Text(recipe.title)),
+          appBar: AppBar(
+            title: Text(recipe.title),
+            actions: [
+              userId.when(
+                loading: () => const SizedBox.shrink(),
+                error: (error, stackTrace) => const SizedBox.shrink(),
+                data: (id) => id == recipe.authorId
+                    ? Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () async {
+                              await context.push(Routes.createOrUpdateRecipe, extra: recipe);
+                              ref.invalidate(recipeDetailsProvider(recipeId));
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () async {
+                              await ref.read(recipeDetailsRepositoryProvider).deleteRecipe(recipeId).then((_) {
+                                if (context.mounted) {
+                                  context.pop();
+                                }
+                              });
+                            },
+                          ),
+                        ],
+                      )
+                    : const SizedBox.shrink(),
+              ),
+            ],
+          ),
           body: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // User Header
-                // Row(
-                //   children: [
-                //     CircleAvatar(
-                //       backgroundImage: recipe.author.avatarUrl != null ? NetworkImage(recipe.author.avatarUrl!) : null,
-                //       child: recipe.author.avatarUrl == null
-                //           ? Text(recipe.author.username.substring(0, 1).toUpperCase())
-                //           : null,
-                //     ),
-                //     const SizedBox(width: 10),
-                //     Text(recipe.author.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                //   ],
-                // ),
+                //User Header
+                userInfo.when(
+                  loading: () => const CircularProgressIndicator(),
+                  error: (error, stackTrace) => Text("Error loading user info: $error"),
+                  data: (user) => Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundImage: user.avatarUrl != null ? CachedNetworkImageProvider(user.avatarUrl!) : null,
+                        child: user.avatarUrl == null ? Text(user.username.substring(0, 1).toUpperCase()) : null,
+                      ),
+                      const SizedBox(width: 10),
+                      Text(user.username, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                    ],
+                  ),
+                ),
+
                 const SizedBox(height: 16),
                 // Recipe Image
                 if (recipe.imageUrl != null)
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: Image.network(
-                      recipe.imageUrl!,
-                      width: double.infinity,
-                      height: 350,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return Container(
+                  Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: recipe.imageUrl!,
                           width: double.infinity,
                           height: 350,
-                          decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(12)),
-                          child: const Icon(Icons.image_not_supported, size: 64),
-                        );
-                      },
-                    ),
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => const CircularProgressIndicator(),
+                          errorWidget: (context, url, error) {
+                            return Container(
+                              width: double.infinity,
+                              height: 350,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[300],
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(Icons.image_not_supported, size: 64),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                const SizedBox(height: 16),
                 // Name & Description
                 Text(recipe.title, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 12),

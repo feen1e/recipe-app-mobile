@@ -1,3 +1,4 @@
+import "dart:async";
 import "dart:io";
 import "package:flutter/material.dart";
 import "package:flutter_form_builder/flutter_form_builder.dart";
@@ -5,11 +6,12 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:form_builder_image_picker/form_builder_image_picker.dart";
 import "package:go_router/go_router.dart";
 
+import "../../../recipe_details/data/models/recipe.dart";
 import "../../data/models/create_recipe.dart";
 import "../providers/create_or_update_recipe_provider.dart";
 
 class CreateOrUpdateRecipePage extends ConsumerStatefulWidget {
-  final RecipeResponse? recipe; // null for create, populated for update
+  final RecipeDetailsDto? recipe;
 
   const CreateOrUpdateRecipePage({super.key, this.recipe});
 
@@ -22,6 +24,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
   final List<String> _ingredients = [];
   final List<String> _steps = [];
   List<XFile>? _initialImages;
+  var _isImageLoading = false;
 
   bool get isEditing => widget.recipe != null;
 
@@ -33,8 +36,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
       _ingredients.addAll(widget.recipe!.ingredients);
       _steps.addAll(widget.recipe!.steps);
 
-      // Load initial image if available (don't await in initState)
-      _loadInitialImage();
+      // Set loading state and load initial image
+      _isImageLoading = true;
+      unawaited(_loadInitialImage());
     }
   }
 
@@ -46,11 +50,25 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
         if (image != null && mounted) {
           setState(() {
             _initialImages = [image];
+            _isImageLoading = false;
+          });
+        } else if (mounted) {
+          setState(() {
+            _isImageLoading = false;
           });
         }
-      } on Exception catch (e) {
-        // Handle error silently or show a message
-        print("Failed to load initial image: $e");
+      } on Exception {
+        if (mounted) {
+          setState(() {
+            _isImageLoading = false;
+          });
+        }
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _isImageLoading = false;
+        });
       }
     }
   }
@@ -70,39 +88,41 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
           ),
         ],
       ),
-      body: FormBuilder(
-        key: _formKey,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Image Picker
-              _buildImagePicker(),
-              const SizedBox(height: 24),
+      body: _isImageLoading
+          ? const Center(child: CircularProgressIndicator())
+          : FormBuilder(
+              key: _formKey,
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Image Picker
+                    _buildImagePicker(),
+                    const SizedBox(height: 24),
 
-              // Title Field
-              _buildTitleField(),
-              const SizedBox(height: 16),
+                    // Title Field
+                    _buildTitleField(),
+                    const SizedBox(height: 16),
 
-              // Description Field
-              _buildDescriptionField(),
-              const SizedBox(height: 24),
+                    // Description Field
+                    _buildDescriptionField(),
+                    const SizedBox(height: 24),
 
-              // Ingredients Section
-              _buildIngredientsSection(),
-              const SizedBox(height: 24),
+                    // Ingredients Section
+                    _buildIngredientsSection(),
+                    const SizedBox(height: 24),
 
-              // Steps Section
-              _buildStepsSection(),
-              const SizedBox(height: 32),
+                    // Steps Section
+                    _buildStepsSection(),
+                    const SizedBox(height: 32),
 
-              // Submit Button
-              _buildSubmitButton(),
-            ],
-          ),
-        ),
-      ),
+                    // Submit Button
+                    _buildSubmitButton(),
+                  ],
+                ),
+              ),
+            ),
     );
   }
 
@@ -367,7 +387,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
       try {
         // Show loading indicator
-        _showLoadingDialog();
+        await _showLoadingDialog();
 
         final repository = ref.read(repositoryProvider);
         String? imageUrl;
@@ -382,7 +402,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
           // Create UpdateRecipeRequest
           final updateRequest = UpdateRecipeRequest(
             title: title,
-            description: description?.isNotEmpty == true ? description : null,
+            description: (description ?? "").isNotEmpty ? description : null,
             ingredients: filteredIngredients,
             steps: filteredSteps,
             imageUrl: imageUrl,
@@ -396,12 +416,14 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
           _showSuccessSnackBar("Recipe updated successfully!");
 
           // Navigate back with result
-          context.pop(updatedRecipe);
+          if (mounted) {
+            context.pop(updatedRecipe);
+          }
         } else {
           // Create CreateRecipeRequest
           final createRequest = CreateRecipeRequest(
             title: title ?? "",
-            description: description?.isNotEmpty == true ? description : null,
+            description: (description ?? "").isNotEmpty ? description : null,
             ingredients: filteredIngredients,
             steps: filteredSteps,
             imageUrl: imageUrl,
@@ -415,7 +437,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
           _showSuccessSnackBar("Recipe created successfully!");
 
           // Navigate back with result
-          context.pop(newRecipe);
+          if (mounted) {
+            context.pop(newRecipe);
+          }
         }
       } on Exception catch (e) {
         // Hide loading and show error

@@ -15,4 +15,9 @@ class ApiEndpoints {
   static const userProfile = "/users";
   static const userRecipes = "/recipes/user/";
   static const userRatings = "/ratings";
+  static const userInfo = "/users/id";
+
+  // collections and favorites
+  static const favorites = "/favorites";
+  static const collectionsUser = "/collections/user";
 }
