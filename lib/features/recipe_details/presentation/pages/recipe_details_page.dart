@@ -7,6 +7,7 @@ import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
+import "../../../collections/presentation/providers/collections_provider.dart";
 import "../providers/recipe_details_provider.dart";
 import "../providers/user_info_provider.dart";
 
@@ -33,6 +34,7 @@ class RecipeDetailsPage extends ConsumerWidget {
       data: (recipe) {
         final userInfo = ref.watch(userInfoProvider(recipe.authorId));
         final userId = ref.watch(currentUserIdProvider);
+        final isFavorite = ref.watch(favoritesProvider).value?.any((fav) => fav.id == recipe.id) ?? false;
 
         return Scaffold(
           appBar: AppBar(
@@ -64,6 +66,17 @@ class RecipeDetailsPage extends ConsumerWidget {
                         ],
                       )
                     : const SizedBox.shrink(),
+              ),
+              IconButton(
+                icon: isFavorite ? const Icon(Icons.favorite) : const Icon(Icons.favorite_border),
+                onPressed: () async {
+                  if (isFavorite) {
+                    await ref.read(collectionsRepositoryProvider).removeFavorite(recipeId);
+                  } else {
+                    await ref.read(collectionsRepositoryProvider).addFavorite(recipeId);
+                  }
+                  ref.invalidate(favoritesProvider);
+                },
               ),
             ],
           ),

@@ -387,7 +387,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
       try {
         // Show loading indicator
-        await _showLoadingDialog();
+        unawaited(_showLoadingDialog());
 
         final repository = ref.read(repositoryProvider);
         String? imageUrl;

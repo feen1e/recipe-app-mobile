@@ -85,4 +85,20 @@ class CollectionsRepository {
       throw Exception("Failed to fetch collections: $e");
     }
   }
+
+  Future<void> addFavorite(String recipeId) async {
+    try {
+      await _dio.post<Map<String, dynamic>>("${ApiEndpoints.favorites}/$recipeId");
+    } on DioException catch (e) {
+      log("Failed to add favorite: ${e.message}");
+    }
+  }
+
+  Future<void> removeFavorite(String recipeId) async {
+    try {
+      await _dio.delete<Map<String, dynamic>>("${ApiEndpoints.favorites}/$recipeId");
+    } on DioException catch (e) {
+      log("Failed to remove favorite: ${e.message}");
+    }
+  }
 }
