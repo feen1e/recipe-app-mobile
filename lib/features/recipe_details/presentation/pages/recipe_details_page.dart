@@ -6,6 +6,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
 import "../../../collections/presentation/providers/collections_provider.dart";
 import "../providers/recipe_details_provider.dart";
@@ -58,11 +59,31 @@ class RecipeDetailsPage extends ConsumerWidget {
                           IconButton(
                             icon: const Icon(Icons.delete),
                             onPressed: () async {
-                              await ref.read(recipeDetailsRepositoryProvider).deleteRecipe(recipeId).then((_) {
-                                if (context.mounted) {
-                                  context.pop();
-                                }
-                              });
+                              final confirmed = await showDialog<bool>(
+                                context: context,
+                                builder: (dialogContext) => AlertDialog(
+                                  title: Text(AppLocalizations.of(context).deleteConfirmationTitle),
+                                  content: Text(AppLocalizations.of(context).deleteConfirmationMessage(recipe.title)),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () => Navigator.of(dialogContext).pop(false),
+                                      child: Text(AppLocalizations.of(context).cancel),
+                                    ),
+                                    TextButton(
+                                      onPressed: () => Navigator.of(dialogContext).pop(true),
+                                      child: Text(AppLocalizations.of(context).delete),
+                                    ),
+                                  ],
+                                ),
+                              );
+
+                              if (confirmed ?? false) {
+                                await ref.read(recipeDetailsRepositoryProvider).deleteRecipe(recipeId).then((_) {
+                                  if (context.mounted) {
+                                    context.pop();
+                                  }
+                                });
+                              }
                             },
                           ),
                         ],

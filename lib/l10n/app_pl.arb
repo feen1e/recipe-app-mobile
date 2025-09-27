@@ -41,6 +41,11 @@
   "titleMaxLength": "Tytuł musi mieć mniej niż {max} znaków",
   "description": "Opis",
   "descriptionMaxLength": "Opis musi mieć mniej niż {max} znaków",
+  "ingredientsHeader": "Składniki",
+  "stepsHeader": "Kroki",
+  "errorLoadingUser": "Błąd ładowania informacji o użytkowniku: {error}",
+  "deleteConfirmationTitle": "Usuń przepis",
+  "deleteConfirmationMessage": "Czy na pewno chcesz usunąć \"{title}\"?",
   "ingredients": "Składniki *",
   "addIngredient": "Dodaj składnik",
   "noIngredientsYetContent": "Brak dodanych składników. Stuknij +, aby dodać składniki.",
@@ -65,4 +70,9 @@
   "delete": "Usuń",
   "loading": "Ładowanie...",
   "error": "Coś poszło nie tak"
+  ,"createCollection": "Utwórz kolekcję",
+  "collectionName": "Nazwa kolekcji",
+  "enterCollectionName": "Proszę podać nazwę kolekcji",
+  "collectionDescription": "Opis kolekcji",
+  "addFromFavorites": "Dodaj z ulubionych"
 }

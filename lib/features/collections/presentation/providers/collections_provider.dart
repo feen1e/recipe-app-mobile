@@ -21,7 +21,6 @@ CollectionsRepository collectionsRepository(Ref ref) {
 class Favorites extends _$Favorites {
   @override
   Future<List<RecipeDetailsDto>> build() async {
-    final start = DateTime.now();
     final repository = ref.read(collectionsRepositoryProvider);
     final username = await ref.read(currentUsernameProvider.future);
 
@@ -30,9 +29,6 @@ class Favorites extends _$Favorites {
     }
 
     final result = await repository.getFavorites(username);
-    final end = DateTime.now();
-    // ignore: avoid_print
-    print("Favorites.build took ${end.difference(start).inMilliseconds}ms");
     return result;
   }
 
@@ -49,7 +45,6 @@ class Favorites extends _$Favorites {
       final favorites = await repository.getFavorites(username);
       state = AsyncData(favorites);
     } on Exception catch (e, stackTrace) {
-      log("Error refreshing favorites: $e");
       state = AsyncError(e, stackTrace);
     }
   }
@@ -59,7 +54,6 @@ class Favorites extends _$Favorites {
 class Collections extends _$Collections {
   @override
   Future<List<CollectionDto>> build() async {
-    final start = DateTime.now();
     final repository = ref.read(collectionsRepositoryProvider);
     final username = await ref.read(currentUsernameProvider.future);
 
@@ -68,9 +62,6 @@ class Collections extends _$Collections {
     }
 
     final result = await repository.getCollections(username);
-    final end = DateTime.now();
-    // ignore: avoid_print
-    print("Collections.build took ${end.difference(start).inMilliseconds}ms");
     return result;
   }
 

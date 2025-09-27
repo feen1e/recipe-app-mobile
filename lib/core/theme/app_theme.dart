@@ -30,6 +30,7 @@ class AppTheme implements AppThemeData {
     inputDecorationTheme: _inputDecorationTheme.copyWith(fillColor: Colors.grey[900]),
     elevatedButtonTheme: elevatedButtonTheme,
     dividerTheme: DividerThemeData(color: Colors.grey[700]),
+    bottomNavigationBarTheme: BottomNavigationBarThemeData(backgroundColor: Colors.grey[900]),
   );
 }
 
@@ -55,12 +56,11 @@ const _appBarTheme = AppBarTheme(
 final _cardTheme = CardTheme(
   color: ColorConsts.surface,
   elevation: 2,
-  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
-  margin: const EdgeInsets.all(8),
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
 );
 
 final _inputDecorationTheme = InputDecorationTheme(
-  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
   filled: true,
   fillColor: ColorConsts.surface,
   contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

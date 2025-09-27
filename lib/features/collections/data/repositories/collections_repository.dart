@@ -101,4 +101,30 @@ class CollectionsRepository {
       log("Failed to remove favorite: ${e.message}");
     }
   }
+
+  Future<void> createCollection({required String name, String? description, List<String>? recipeIds}) async {
+    try {
+      final body = <String, dynamic>{"name": name, "description": ?description};
+
+      final response = await _dio.post<Map<String, dynamic>>(ApiEndpoints.collectionsCRUD, data: body);
+
+      final createdId = response.data != null ? (response.data!["id"] as String?) : null;
+
+      if (recipeIds != null && recipeIds.isNotEmpty && createdId != null) {
+        for (final recipeId in recipeIds) {
+          try {
+            await _dio.post<Map<String, dynamic>>(
+              "${ApiEndpoints.collectionsCRUD}/$createdId/recipes",
+              data: {"recipeId": recipeId},
+            );
+          } on DioException catch (e) {
+            log("Failed to add recipe $recipeId to collection $createdId: ${e.message}");
+          }
+        }
+      }
+    } on DioException catch (e) {
+      log("Failed to create collection: ${e.message}");
+      rethrow;
+    }
+  }
 }

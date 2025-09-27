@@ -18,7 +18,17 @@ class CollectionsPage extends ConsumerWidget {
     final collectionsState = ref.watch(collectionsProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context).collections)),
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context).collections),
+        actions: [
+          IconButton(
+            onPressed: () async {
+              await context.push(Routes.createCollection);
+            },
+            icon: const Icon(Icons.add),
+          ),
+        ],
+      ),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait<void>([

@@ -41,6 +41,11 @@
   "titleMaxLength": "Title must be less than {max} characters",
   "description": "Description",
   "descriptionMaxLength": "Description must be less than {max} characters",
+  "ingredientsHeader": "Ingredients",
+  "stepsHeader": "Steps",
+  "errorLoadingUser": "Error loading user info: {error}",
+  "deleteConfirmationTitle": "Delete recipe",
+  "deleteConfirmationMessage": "Are you sure you want to delete \"{title}\"?",
   "ingredients": "Ingredients *",
   "addIngredient": "Add ingredient",
   "noIngredientsYetContent": "No ingredients added yet. Tap + to add ingredients.",
@@ -65,6 +70,11 @@
   "delete": "Delete",
   "loading": "Loading...",
   "error": "Something went wrong",
+  "createCollection": "Create Collection",
+  "collectionName": "Collection name",
+  "enterCollectionName": "Please enter a collection name",
+  "collectionDescription": "Collection description",
+  "addFromFavorites": "Add from favorites",
   "@greeting": {
     "description": "Greeting with a name parameter",
     "placeholders": { "name": {} }
