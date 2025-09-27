@@ -18,10 +18,7 @@ class CollectionsPage extends ConsumerWidget {
     final collectionsState = ref.watch(collectionsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).collections),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-      ),
+      appBar: AppBar(title: Text(AppLocalizations.of(context).collections)),
       body: RefreshIndicator(
         onRefresh: () async {
           await Future.wait<void>([

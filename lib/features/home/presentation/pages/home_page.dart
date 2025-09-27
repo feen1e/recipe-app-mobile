@@ -2,6 +2,7 @@ import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
+import "package:intl/intl.dart";
 
 import "../../../../core/constants/routes.dart";
 import "../../../../l10n/app_localizations.dart";
@@ -65,9 +66,11 @@ class _HomePageState extends ConsumerState<HomePage> {
                 final recipe = recipes[index];
                 final isUpdated = recipe.updatedAt.isAfter(recipe.createdAt);
                 final avatarExists = recipe.author.avatarUrl != null;
+                final localTime = recipe.updatedAt.toLocal();
+                final formattedTime = DateFormat("dd.MM.yyyy\nHH:mm").format(localTime);
 
                 return Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -89,6 +92,13 @@ class _HomePageState extends ConsumerState<HomePage> {
                                 ? AppLocalizations.of(context).updatedRecipe
                                 : AppLocalizations.of(context).createdRecipe,
                             style: const TextStyle(color: Colors.grey),
+                          ),
+                          Expanded(
+                            child: Text(
+                              textAlign: TextAlign.right,
+                              formattedTime,
+                              style: const TextStyle(color: Colors.grey),
+                            ),
                           ),
                         ],
                       ),
@@ -135,12 +145,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                                   Text(recipe.title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                                   const SizedBox(height: 4),
                                   if (recipe.description != null)
-                                    Text(
-                                      recipe.description!,
-                                      style: const TextStyle(color: Colors.black87),
-                                      maxLines: 3,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                                    Text(recipe.description!, maxLines: 3, overflow: TextOverflow.ellipsis),
                                 ],
                               ),
                             ),

@@ -6,55 +6,35 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../core/theme/local_theme_repository.dart";
+import "../../../../core/theme/theme_notifier.dart";
 import "../../../../l10n/app_localizations.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
 import "../../data/models/profile.dart";
 import "../providers/profile_provider.dart";
 
 class ProfilePage extends ConsumerWidget {
-  const ProfilePage({super.key});
+  final String? username;
+  const ProfilePage({super.key, this.username});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String username = ref
+    final String currentUsername = ref
         .watch(currentUsernameProvider)
-        .maybeWhen(data: (username) => username ?? "", orElse: () => "");
+        .maybeWhen(data: (currentUsername) => currentUsername ?? "", orElse: () => "");
 
     log("Building ProfilePage for username: $username");
 
-    final completeProfileAsync = ref.watch(completeProfileProvider(username));
+    final completeProfileAsync = ref.watch(completeProfileProvider(username ?? currentUsername));
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context).profile),
-        actions: [
-          PopupMenuButton<String>(
-            onSelected: (value) async {
-              if (value == "logout") {
-                final authNotifier = ref.read(authNotifierProvider.notifier);
-                await authNotifier.logout();
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem<String>(
-                value: "logout",
-                child: Row(
-                  children: [
-                    const Icon(Icons.logout),
-                    const SizedBox(width: 8),
-                    Text(AppLocalizations.of(context).logout),
-                  ],
-                ),
-              ),
-            ],
-            icon: const Icon(Icons.settings),
-          ),
-        ],
-      ),
+      appBar: _buildAppBar(context, ref, username),
       body: completeProfileAsync.when(
         data: (completeProfile) => RefreshIndicator(
           onRefresh: () async {
-            await ref.read(completeProfileProvider(username).notifier).refresh(username);
+            await ref
+                .read(completeProfileProvider(username ?? currentUsername).notifier)
+                .refresh(username ?? currentUsername);
           },
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
@@ -91,7 +71,7 @@ class ProfilePage extends ConsumerWidget {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: () {
-                  ref.invalidate(completeProfileProvider(username));
+                  ref.invalidate(completeProfileProvider(username ?? currentUsername));
                 },
                 child: Text(AppLocalizations.of(context).retry),
               ),
@@ -100,6 +80,54 @@ class ProfilePage extends ConsumerWidget {
         ),
       ),
     );
+  }
+
+  AppBar _buildAppBar(BuildContext context, WidgetRef ref, String? username) {
+    if (username == null || username.isEmpty) {
+      final theme = ref.watch(themeNotifierProvider).value;
+      return AppBar(
+        title: Text(AppLocalizations.of(context).profile),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) async {
+              if (value == "logout") {
+                final authNotifier = ref.read(authNotifierProvider.notifier);
+                await authNotifier.logout();
+              }
+              if (value == "theme") {
+                final themeNotifier = ref.read(themeNotifierProvider.notifier);
+                await themeNotifier.toggleTheme();
+              }
+            },
+            itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: "logout",
+                child: Row(
+                  children: [
+                    const Icon(Icons.logout),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).logout),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: "theme",
+                child: Row(
+                  children: [
+                    Icon(theme == AppThemeMode.light ? Icons.dark_mode : Icons.light_mode),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).switchTheme),
+                  ],
+                ),
+              ),
+            ],
+            icon: const Icon(Icons.settings),
+          ),
+        ],
+      );
+    } else {
+      return AppBar();
+    }
   }
 
   Widget _buildProfileHeader(BuildContext context, Profile profile, int actualRecipesCount, int actualRatingsCount) {

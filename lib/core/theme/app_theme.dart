@@ -8,24 +8,28 @@ abstract interface class AppThemeData {
 class AppTheme implements AppThemeData {
   @override
   ThemeData get light => ThemeData(
-    colorScheme: const ColorScheme.light(primary: ColorConsts.primary, surface: ColorConsts.surface),
+    colorScheme: const ColorScheme.light(primary: ColorConsts.primary),
     scaffoldBackgroundColor: ColorConsts.background,
     appBarTheme: _appBarTheme,
     textTheme: _textTheme,
     useMaterial3: true,
+    cardTheme: _cardTheme.data,
+    inputDecorationTheme: _inputDecorationTheme,
+    elevatedButtonTheme: elevatedButtonTheme,
+    dividerTheme: DividerThemeData(color: Colors.grey[700]),
   );
 
   @override
   ThemeData get dark => ThemeData(
-    colorScheme: ColorScheme.dark(
-      primary: ColorConsts.primary,
-      surface: Colors.grey[850]!,
-      onPrimary: ColorConsts.onPrimary,
-    ),
+    colorScheme: const ColorScheme.dark(primary: ColorConsts.primary, onPrimary: ColorConsts.onPrimary),
     scaffoldBackgroundColor: Colors.grey[900],
     textTheme: _textTheme.apply(bodyColor: Colors.white),
-    appBarTheme: _appBarTheme.copyWith(backgroundColor: Colors.grey[850]),
+    appBarTheme: _appBarTheme.copyWith(backgroundColor: Colors.grey[900], foregroundColor: Colors.white),
     useMaterial3: true,
+    cardTheme: _cardTheme.copyWith(color: Colors.grey[800]).data,
+    inputDecorationTheme: _inputDecorationTheme.copyWith(fillColor: Colors.grey[900]),
+    elevatedButtonTheme: elevatedButtonTheme,
+    dividerTheme: DividerThemeData(color: Colors.grey[700]),
   );
 }
 
@@ -40,11 +44,43 @@ const _textTheme = TextTheme(
   titleSmall: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
 );
 
-const _appBarTheme = AppBarTheme(backgroundColor: ColorConsts.primary, foregroundColor: ColorConsts.onPrimary);
+const _appBarTheme = AppBarTheme(
+  backgroundColor: Colors.white,
+  foregroundColor: ColorConsts.onSecondary,
+  elevation: 0,
+  centerTitle: true,
+  surfaceTintColor: Colors.transparent,
+);
+
+final _cardTheme = CardTheme(
+  color: ColorConsts.surface,
+  elevation: 2,
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(1)),
+  margin: const EdgeInsets.all(8),
+);
+
+final _inputDecorationTheme = InputDecorationTheme(
+  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
+  filled: true,
+  fillColor: ColorConsts.surface,
+  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+  floatingLabelBehavior: FloatingLabelBehavior.always,
+  hintStyle: const TextStyle(color: Colors.grey),
+);
+
+final elevatedButtonTheme = ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    backgroundColor: ColorConsts.primary,
+    foregroundColor: ColorConsts.onPrimary,
+    textStyle: _textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold, color: ColorConsts.onPrimary),
+    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+  ),
+);
 
 class ColorConsts {
   static const primary = Color.fromARGB(255, 200, 40, 40);
-  static const surface = Color(0xFFFDF3F3);
+  static const surface = Color.fromARGB(255, 255, 255, 255);
   static const background = Color(0xFFFFFFFF);
   static const Color onPrimary = Colors.white;
   static const Color onSecondary = Colors.black;

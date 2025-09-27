@@ -12,12 +12,15 @@ class MainNavigationPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final t = Theme.of(context);
     return Scaffold(
       body: child,
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _calculateSelectedIndex(context),
         onTap: (index) => _onItemTapped(index, context),
+        selectedItemColor: t.colorScheme.primary,
+        selectedIconTheme: IconThemeData(color: t.colorScheme.primary),
         items: [
           BottomNavigationBarItem(icon: const Icon(Icons.home), label: AppLocalizations.of(context).navHome),
           BottomNavigationBarItem(icon: const Icon(Icons.restaurant), label: AppLocalizations.of(context).navDiscover),

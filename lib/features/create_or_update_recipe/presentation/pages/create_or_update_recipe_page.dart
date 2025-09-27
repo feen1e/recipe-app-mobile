@@ -1,11 +1,13 @@
 import "dart:async";
 import "dart:io";
+
 import "package:flutter/material.dart";
 import "package:flutter_form_builder/flutter_form_builder.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:form_builder_image_picker/form_builder_image_picker.dart";
 import "package:go_router/go_router.dart";
 
+import "../../../../l10n/app_localizations.dart";
 import "../../../recipe_details/data/models/recipe.dart";
 import "../../data/models/create_recipe.dart";
 import "../providers/create_or_update_recipe_provider.dart";
@@ -32,11 +34,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
   void initState() {
     super.initState();
     if (isEditing) {
-      // Pre-populate lists for editing
       _ingredients.addAll(widget.recipe!.ingredients);
       _steps.addAll(widget.recipe!.steps);
 
-      // Set loading state and load initial image
       _isImageLoading = true;
       unawaited(_loadInitialImage());
     }
@@ -77,14 +77,15 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(isEditing ? "Edit Recipe" : "Create Recipe"),
+        title: Text(
+          isEditing
+              ? AppLocalizations.of(context).createRecipePageTitleEdit
+              : AppLocalizations.of(context).createRecipePageTitleCreate,
+        ),
         actions: [
           TextButton(
             onPressed: _saveRecipe,
-            child: Text(
-              "Save",
-              style: TextStyle(color: Theme.of(context).colorScheme.onPrimary, fontWeight: FontWeight.bold),
-            ),
+            child: Text(AppLocalizations.of(context).save, style: const TextStyle(fontWeight: FontWeight.bold)),
           ),
         ],
       ),
@@ -130,15 +131,22 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Recipe Image", style: Theme.of(context).textTheme.titleMedium),
-        const SizedBox(height: 8),
         FormBuilderImagePicker(
           name: "image",
           initialValue: _initialImages,
           displayCustomType: (obj) => obj is XFile ? Image.file(File(obj.path)) : obj,
           maxImages: 1,
           bottomSheetPadding: const EdgeInsets.all(20),
-          decoration: const InputDecoration(labelText: "Select recipe image", border: OutlineInputBorder()),
+          decoration: InputDecoration(
+            labelText: AppLocalizations.of(context).selectRecipeImage,
+            border: const OutlineInputBorder(),
+          ),
+          placeholderWidget: const SizedBox.expand(child: Icon(Icons.camera_alt)),
+          transformImageWidget: (context, displayImage) {
+            return SizedBox.expand(child: ClipRRect(child: displayImage));
+          },
+          fit: BoxFit.fitHeight,
+          previewHeight: 250,
         ),
       ],
     );
@@ -148,20 +156,20 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
     return FormBuilderTextField(
       name: "title",
       initialValue: isEditing ? widget.recipe!.title : null,
-      decoration: const InputDecoration(
-        labelText: "Recipe Title *",
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.restaurant_menu),
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context).recipeTitle,
+        border: const OutlineInputBorder(),
+        prefixIcon: const Icon(Icons.restaurant_menu),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return "Please enter a recipe title";
+          return AppLocalizations.of(context).pleaseEnterRecipeTitle;
         }
         if (value.length < 3) {
-          return "Title must be at least 3 characters";
+          return AppLocalizations.of(context).titleMinLength(3);
         }
         if (value.length > 100) {
-          return "Title must be less than 100 characters";
+          return AppLocalizations.of(context).titleMaxLength(100);
         }
         return null;
       },
@@ -172,16 +180,16 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
     return FormBuilderTextField(
       name: "description",
       initialValue: isEditing ? widget.recipe!.description : null,
-      decoration: const InputDecoration(
-        labelText: "Description",
-        border: OutlineInputBorder(),
-        prefixIcon: Icon(Icons.description),
-        alignLabelWithHint: true,
+      decoration: InputDecoration(
+        labelText: AppLocalizations.of(context).description,
+        border: const OutlineInputBorder(),
+        prefixIcon: const Icon(Icons.description),
       ),
-      maxLines: 3,
+      minLines: 1,
+      maxLines: 5,
       validator: (value) {
         if (value != null && value.length > 500) {
-          return "Description must be less than 500 characters";
+          return AppLocalizations.of(context).descriptionMaxLength(500);
         }
         return null;
       },
@@ -195,8 +203,12 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Ingredients *", style: Theme.of(context).textTheme.titleMedium),
-            IconButton(onPressed: _addIngredient, icon: const Icon(Icons.add_circle), tooltip: "Add ingredient"),
+            Text(AppLocalizations.of(context).ingredients, style: Theme.of(context).textTheme.titleMedium),
+            IconButton(
+              onPressed: _addIngredient,
+              icon: const Icon(Icons.add_circle),
+              tooltip: AppLocalizations.of(context).addIngredient,
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -209,7 +221,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "No ingredients added yet. Tap + to add ingredients.",
+              AppLocalizations.of(context).noIngredientsYetContent,
               style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
               textAlign: TextAlign.center,
             ),
@@ -225,13 +237,13 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
                       name: "ingredient_$index",
                       initialValue: _ingredients[index],
                       decoration: InputDecoration(
-                        labelText: "Ingredient ${index + 1}",
+                        labelText: AppLocalizations.of(context).ingredient(index + 1),
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.restaurant),
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter an ingredient";
+                          return AppLocalizations.of(context).pleaseEnterIngredient;
                         }
                         return null;
                       },
@@ -262,8 +274,12 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Cooking Steps *", style: Theme.of(context).textTheme.titleMedium),
-            IconButton(onPressed: _addStep, icon: const Icon(Icons.add_circle), tooltip: "Add step"),
+            Text(AppLocalizations.of(context).cookingSteps, style: Theme.of(context).textTheme.titleMedium),
+            IconButton(
+              onPressed: _addStep,
+              icon: const Icon(Icons.add_circle),
+              tooltip: AppLocalizations.of(context).addStep,
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -276,7 +292,7 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              "No steps added yet. Tap + to add cooking steps.",
+              AppLocalizations.of(context).noStepsYetContent,
               style: TextStyle(color: Colors.grey.shade600, fontStyle: FontStyle.italic),
               textAlign: TextAlign.center,
             ),
@@ -293,15 +309,15 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
                       name: "step_$index",
                       initialValue: _steps[index],
                       decoration: InputDecoration(
-                        labelText: "Step ${index + 1}",
+                        labelText: AppLocalizations.of(context).step(index + 1),
                         border: const OutlineInputBorder(),
                         prefixIcon: const Icon(Icons.format_list_numbered),
-                        alignLabelWithHint: true,
                       ),
-                      maxLines: 2,
+                      minLines: 1,
+                      maxLines: 5,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return "Please enter a cooking step";
+                          return AppLocalizations.of(context).pleaseEnterStep;
                         }
                         return null;
                       },
@@ -331,7 +347,10 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
       child: ElevatedButton(
         onPressed: _saveRecipe,
         style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)),
-        child: Text(isEditing ? "Update Recipe" : "Create Recipe", style: const TextStyle(fontSize: 16)),
+        child: Text(
+          isEditing ? AppLocalizations.of(context).updateRecipe : AppLocalizations.of(context).createRecipe,
+          style: const TextStyle(fontSize: 16),
+        ),
       ),
     );
   }
@@ -364,12 +383,12 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
     if (_formKey.currentState?.saveAndValidate() ?? false) {
       // Validate that we have at least one ingredient and one step
       if (_ingredients.isEmpty || _ingredients.every((ingredient) => ingredient.trim().isEmpty)) {
-        _showErrorSnackBar("Please add at least one ingredient");
+        _showErrorSnackBar(AppLocalizations.of(context).pleaseAddAtLeastOneIngredient);
         return;
       }
 
       if (_steps.isEmpty || _steps.every((step) => step.trim().isEmpty)) {
-        _showErrorSnackBar("Please add at least one cooking step");
+        _showErrorSnackBar(AppLocalizations.of(context).pleaseAddAtLeastOneStep);
         return;
       }
 
@@ -413,7 +432,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
           // Hide loading and show success
           _hideLoadingDialog();
-          _showSuccessSnackBar("Recipe updated successfully!");
+          if (mounted) {
+            _showSuccessSnackBar(AppLocalizations.of(context).recipeUpdatedSuccess);
+          }
 
           // Navigate back with result
           if (mounted) {
@@ -434,7 +455,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
           // Hide loading and show success
           _hideLoadingDialog();
-          _showSuccessSnackBar("Recipe created successfully!");
+          if (mounted) {
+            _showSuccessSnackBar(AppLocalizations.of(context).recipeCreatedSuccess);
+          }
 
           // Navigate back with result
           if (mounted) {
@@ -444,7 +467,9 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
       } on Exception catch (e) {
         // Hide loading and show error
         _hideLoadingDialog();
-        _showErrorSnackBar("Failed to save recipe: $e");
+        if (mounted) {
+          _showErrorSnackBar(AppLocalizations.of(context).failedToSaveRecipe(e.toString()));
+        }
       }
     }
   }
@@ -461,10 +486,14 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
     await showDialog<void>(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const AlertDialog(
+      builder: (context) => AlertDialog(
         content: Row(
           mainAxisSize: MainAxisSize.min,
-          children: [CircularProgressIndicator(), SizedBox(width: 16), Text("Saving recipe...")],
+          children: [
+            const CircularProgressIndicator(),
+            const SizedBox(width: 16),
+            Text(AppLocalizations.of(context).savingRecipe),
+          ],
         ),
       ),
     );

@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
@@ -21,22 +22,76 @@ class CollectionDetailsPage extends ConsumerWidget {
         body: Center(child: Text(err.toString())),
       ),
       data: (collectionDetails) => Scaffold(
-        appBar: AppBar(title: Text(collectionDetails.name)),
+        appBar: AppBar(),
         body: Column(
           children: [
             Text(collectionDetails.name, style: Theme.of(context).textTheme.headlineMedium),
-            if (collectionDetails.description != null) Text(collectionDetails.description!),
+            if (collectionDetails.description != null)
+              Padding(padding: const EdgeInsets.all(8), child: Text(collectionDetails.description!)),
+            const Padding(padding: EdgeInsets.all(12)),
             Expanded(
               child: ListView.builder(
                 itemCount: collectionDetails.recipes.length,
                 itemBuilder: (context, index) {
                   final recipe = collectionDetails.recipes[index];
-                  return ListTile(
-                    title: Text(recipe.title),
-                    subtitle: Text(recipe.description ?? ""),
-                    onTap: () async {
-                      await context.push("${Routes.recipeDetails}/${recipe.id}");
-                    },
+                  return Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                    child: Column(
+                      children: [
+                        InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          onTap: () async {
+                            await context.push("${Routes.recipeDetails}/${recipe.id}");
+                          },
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: recipe.imageUrl != null
+                                    ? CachedNetworkImage(
+                                        imageUrl: recipe.imageUrl!,
+                                        width: 80,
+                                        height: 80,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) => const CircularProgressIndicator(),
+                                        errorWidget: (context, url, error) {
+                                          return Container(
+                                            width: 80,
+                                            height: 80,
+                                            color: Colors.grey[300],
+                                            child: const Icon(Icons.image_not_supported),
+                                          );
+                                        },
+                                      )
+                                    : Container(
+                                        width: 80,
+                                        height: 80,
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.restaurant),
+                                      ),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      recipe.title,
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    if (recipe.description != null)
+                                      Text(recipe.description!, maxLines: 3, overflow: TextOverflow.ellipsis),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Divider(height: 24),
+                      ],
+                    ),
                   );
                 },
               ),
