@@ -127,4 +127,32 @@ class CollectionsRepository {
       rethrow;
     }
   }
+
+  Future<void> updateCollection({
+    required String id,
+    required String name,
+    String? description,
+    List<String>? recipeIds,
+  }) async {
+    try {
+      final body = <String, dynamic>{"name": name, "description": description};
+
+      await _dio.patch<Map<String, dynamic>>("${ApiEndpoints.collectionsCRUD}/$id", data: body);
+
+      if (recipeIds != null && recipeIds.isNotEmpty) {
+        for (final recipeId in recipeIds) {
+          try {
+            await _dio.delete<Map<String, dynamic>>(
+              "${ApiEndpoints.collectionsCRUD}/$id/recipes",
+              data: {"recipeId": recipeId},
+            );
+          } on DioException catch (e) {
+            log("Failed to remove recipe $recipeId from collection $id: ${e.message}");
+          }
+        }
+      }
+    } on DioException catch (e) {
+      log("Failed to update collection $id: ${e.message}");
+    }
+  }
 }

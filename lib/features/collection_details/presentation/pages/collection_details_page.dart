@@ -4,6 +4,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../auth/presentation/providers/auth_provider.dart";
 import "../providers/collection_details_provider.dart";
 
 class CollectionDetailsPage extends ConsumerWidget {
@@ -14,6 +15,7 @@ class CollectionDetailsPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final collectionDetailsAsync = ref.watch(collectionDetailsProvider(collectionId));
+    final currentUserId = ref.watch(currentUserIdProvider);
 
     return collectionDetailsAsync.when(
       loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
@@ -22,7 +24,17 @@ class CollectionDetailsPage extends ConsumerWidget {
         body: Center(child: Text(err.toString())),
       ),
       data: (collectionDetails) => Scaffold(
-        appBar: AppBar(),
+        appBar: AppBar(
+          actions: [
+            if (collectionDetails.userId == currentUserId.value)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () async {
+                  await context.push(Routes.createOrEditCollection, extra: collectionDetails.id);
+                },
+              ),
+          ],
+        ),
         body: Column(
           children: [
             Text(collectionDetails.name, style: Theme.of(context).textTheme.headlineMedium),

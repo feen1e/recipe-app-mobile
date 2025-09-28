@@ -76,7 +76,13 @@ GoRouter goRouter(Ref ref) {
         path: "${Routes.collectionDetails}/:id",
         builder: (context, state) => CollectionDetailsPage(collectionId: state.pathParameters["id"]!),
       ),
-      GoRoute(path: Routes.createCollection, builder: (context, state) => const CollectionCreatePage()),
+      GoRoute(
+        path: Routes.createOrEditCollection,
+        builder: (context, state) {
+          final collectionId = state.extra as String?;
+          return CollectionCreatePage(existingCollectionId: collectionId);
+        },
+      ),
     ],
   );
 }

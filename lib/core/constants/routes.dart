@@ -9,5 +9,5 @@ class Routes {
   static const createOrUpdateRecipe = "/create-or-update-recipe";
   static const recipeDetails = "/recipe-details";
   static const collectionDetails = "/collection-details";
-  static const createCollection = "/create-collection";
+  static const createOrEditCollection = "/create-collection";
 }

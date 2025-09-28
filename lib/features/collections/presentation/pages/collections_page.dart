@@ -23,7 +23,7 @@ class CollectionsPage extends ConsumerWidget {
         actions: [
           IconButton(
             onPressed: () async {
-              await context.push(Routes.createCollection);
+              await context.push(Routes.createOrEditCollection);
             },
             icon: const Icon(Icons.add),
           ),

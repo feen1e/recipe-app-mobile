@@ -71,10 +71,12 @@
   "loading": "Loading...",
   "error": "Something went wrong",
   "createCollection": "Create Collection",
+  "editCollection": "Edit Collection",
   "collectionName": "Collection name",
   "enterCollectionName": "Please enter a collection name",
   "collectionDescription": "Collection description",
   "addFromFavorites": "Add from favorites",
+  "addedRecipes": "Recipes added to collection",
   "@greeting": {
     "description": "Greeting with a name parameter",
     "placeholders": { "name": {} }

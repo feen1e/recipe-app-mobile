@@ -69,10 +69,12 @@
   "cancel": "Anuluj",
   "delete": "Usuń",
   "loading": "Ładowanie...",
-  "error": "Coś poszło nie tak"
-  ,"createCollection": "Utwórz kolekcję",
+  "error": "Coś poszło nie tak",
+  "createCollection": "Utwórz kolekcję",
+  "editCollection": "Edytuj kolekcję",
   "collectionName": "Nazwa kolekcji",
   "enterCollectionName": "Proszę podać nazwę kolekcji",
   "collectionDescription": "Opis kolekcji",
-  "addFromFavorites": "Dodaj z ulubionych"
+  "addFromFavorites": "Dodaj z ulubionych",
+  "addedRecipes": "Przepisy w kolekcji"
 }
