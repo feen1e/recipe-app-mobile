@@ -8,6 +8,7 @@ import "package:form_builder_image_picker/form_builder_image_picker.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../l10n/app_localizations.dart";
+import "../../../home/presentation/providers/recipes_provider.dart";
 import "../../../recipe_details/data/models/recipe.dart";
 import "../../data/models/create_recipe.dart";
 import "../providers/create_or_update_recipe_provider.dart";
@@ -381,7 +382,6 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
   Future<void> _saveRecipe() async {
     if (_formKey.currentState?.saveAndValidate() ?? false) {
-      // Validate that we have at least one ingredient and one step
       if (_ingredients.isEmpty || _ingredients.every((ingredient) => ingredient.trim().isEmpty)) {
         _showErrorSnackBar(AppLocalizations.of(context).pleaseAddAtLeastOneIngredient);
         return;
@@ -394,31 +394,26 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
 
       final formValues = _formKey.currentState!.value;
 
-      // Filter out empty ingredients and steps
       final filteredIngredients = _ingredients.where((ingredient) => ingredient.trim().isNotEmpty).toList();
       final filteredSteps = _steps.where((step) => step.trim().isNotEmpty).toList();
 
-      // Get form values with proper type casting
       final title = formValues["title"] as String?;
       final description = formValues["description"] as String?;
       final selectedImagesRaw = formValues["image"] as List<dynamic>?;
       final selectedImages = selectedImagesRaw?.cast<XFile>();
 
       try {
-        // Show loading indicator
         unawaited(_showLoadingDialog());
 
         final repository = ref.read(repositoryProvider);
         String? imageUrl;
 
-        // Handle image upload if an image was selected
         if (selectedImages != null && selectedImages.isNotEmpty) {
           final imageFile = selectedImages.first;
           imageUrl = await repository.addPhoto(imageFile, "recipes");
         }
 
         if (isEditing) {
-          // Create UpdateRecipeRequest
           final updateRequest = UpdateRecipeRequest(
             title: title,
             description: (description ?? "").isNotEmpty ? description : null,
@@ -427,21 +422,18 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
             imageUrl: imageUrl,
           );
 
-          // Call repository update method
           final updatedRecipe = await repository.updateRecipe(widget.recipe!.id, updateRequest);
 
-          // Hide loading and show success
           _hideLoadingDialog();
           if (mounted) {
             _showSuccessSnackBar(AppLocalizations.of(context).recipeUpdatedSuccess);
           }
 
-          // Navigate back with result
+          ref.invalidate(latestRecipesProvider);
           if (mounted) {
             context.pop(updatedRecipe);
           }
         } else {
-          // Create CreateRecipeRequest
           final createRequest = CreateRecipeRequest(
             title: title ?? "",
             description: (description ?? "").isNotEmpty ? description : null,
@@ -450,22 +442,19 @@ class _CreateOrUpdateRecipePageState extends ConsumerState<CreateOrUpdateRecipeP
             imageUrl: imageUrl,
           );
 
-          // Call repository create method
           final newRecipe = await repository.createRecipe(createRequest);
 
-          // Hide loading and show success
           _hideLoadingDialog();
           if (mounted) {
             _showSuccessSnackBar(AppLocalizations.of(context).recipeCreatedSuccess);
           }
 
-          // Navigate back with result
+          ref.invalidate(latestRecipesProvider);
           if (mounted) {
             context.pop(newRecipe);
           }
         }
       } on Exception catch (e) {
-        // Hide loading and show error
         _hideLoadingDialog();
         if (mounted) {
           _showErrorSnackBar(AppLocalizations.of(context).failedToSaveRecipe(e.toString()));

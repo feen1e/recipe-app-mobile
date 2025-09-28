@@ -24,4 +24,15 @@ class CollectionDetailsRepository {
       throw Exception("Failed to fetch collection details: $e");
     }
   }
+
+  Future<void> deleteCollection(String collectionId) async {
+    try {
+      await _dio.delete<Map<String, dynamic>>("${ApiEndpoints.collectionsCRUD}/$collectionId");
+    } on DioException catch (e) {
+      final errorMessage = "Failed to delete collection: ${e.message}\nDio Response: ${e.response?.data}";
+      throw Exception(errorMessage);
+    } catch (e) {
+      throw Exception("Failed to delete collection: $e");
+    }
+  }
 }

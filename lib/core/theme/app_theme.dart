@@ -49,7 +49,6 @@ const _appBarTheme = AppBarTheme(
   backgroundColor: Colors.white,
   foregroundColor: ColorConsts.onSecondary,
   elevation: 0,
-  centerTitle: true,
   surfaceTintColor: Colors.transparent,
 );
 

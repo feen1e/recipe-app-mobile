@@ -155,4 +155,28 @@ class CollectionsRepository {
       log("Failed to update collection $id: ${e.message}");
     }
   }
+
+  Future<void> addRecipeToCollection(String collectionId, String recipeId) async {
+    try {
+      await _dio.post<Map<String, dynamic>>(
+        "${ApiEndpoints.collectionsCRUD}/$collectionId/recipes",
+        data: {"recipeId": recipeId},
+      );
+    } on DioException catch (e) {
+      log("Failed to add recipe $recipeId to collection $collectionId: ${e.message}");
+      rethrow;
+    }
+  }
+
+  Future<void> removeRecipeFromCollection(String collectionId, String recipeId) async {
+    try {
+      await _dio.delete<Map<String, dynamic>>(
+        "${ApiEndpoints.collectionsCRUD}/$collectionId/recipes",
+        data: {"recipeId": recipeId},
+      );
+    } on DioException catch (e) {
+      log("Failed to remove recipe $recipeId from collection $collectionId: ${e.message}");
+      rethrow;
+    }
+  }
 }

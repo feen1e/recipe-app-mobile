@@ -6,6 +6,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../core/providers/locale_provider.dart";
 import "../../../../core/theme/local_theme_repository.dart";
 import "../../../../core/theme/theme_notifier.dart";
 import "../../../../l10n/app_localizations.dart";
@@ -85,6 +86,7 @@ class ProfilePage extends ConsumerWidget {
   AppBar _buildAppBar(BuildContext context, WidgetRef ref, String? username) {
     if (username == null || username.isEmpty) {
       final theme = ref.watch(themeNotifierProvider).value;
+      final currentLocale = ref.watch(localeNotifierProvider);
       return AppBar(
         title: Text(AppLocalizations.of(context).profile),
         actions: [
@@ -99,6 +101,12 @@ class ProfilePage extends ConsumerWidget {
                 case "theme":
                   final themeNotifier = ref.read(themeNotifierProvider.notifier);
                   await themeNotifier.toggleTheme();
+                case "language_en":
+                  final localeNotifier = ref.read(localeNotifierProvider.notifier);
+                  await localeNotifier.setLocale(const Locale("en"));
+                case "language_pl":
+                  final localeNotifier = ref.read(localeNotifierProvider.notifier);
+                  await localeNotifier.setLocale(const Locale("pl"));
               }
             },
             itemBuilder: (context) => [
@@ -129,6 +137,39 @@ class ProfilePage extends ConsumerWidget {
                     Icon(theme == AppThemeMode.light ? Icons.dark_mode : Icons.light_mode),
                     const SizedBox(width: 8),
                     Text(AppLocalizations.of(context).switchTheme),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              PopupMenuItem<String>(
+                enabled: false,
+                child: Text(
+                  AppLocalizations.of(context).switchLanguage,
+                  style: TextStyle(fontWeight: FontWeight.bold, color: Colors.grey[600]),
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: "language_en",
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.check,
+                      color: (currentLocale?.languageCode == "en" || currentLocale == null)
+                          ? Colors.green
+                          : Colors.transparent,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).english),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: "language_pl",
+                child: Row(
+                  children: [
+                    Icon(Icons.check, color: currentLocale?.languageCode == "pl" ? Colors.green : Colors.transparent),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).polish),
                   ],
                 ),
               ),

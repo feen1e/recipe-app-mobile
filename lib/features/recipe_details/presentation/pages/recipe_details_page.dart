@@ -9,6 +9,7 @@ import "../../../../core/constants/routes.dart";
 import "../../../../l10n/app_localizations.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
 import "../../../collections/presentation/providers/collections_provider.dart";
+import "../../../profile/presentation/providers/profile_provider.dart";
 import "../providers/recipe_details_provider.dart";
 import "../providers/user_info_provider.dart";
 
@@ -54,6 +55,10 @@ class RecipeDetailsPage extends ConsumerWidget {
                             onPressed: () async {
                               await context.push(Routes.createOrUpdateRecipe, extra: recipe);
                               ref.invalidate(recipeDetailsProvider(recipeId));
+                              final authorUsername = userInfo.value?.username;
+                              if (authorUsername != null) {
+                                ref.invalidate(completeProfileProvider(authorUsername));
+                              }
                             },
                           ),
                           IconButton(
@@ -69,7 +74,7 @@ class RecipeDetailsPage extends ConsumerWidget {
                                       onPressed: () => Navigator.of(dialogContext).pop(false),
                                       child: Text(AppLocalizations.of(context).cancel),
                                     ),
-                                    TextButton(
+                                    ElevatedButton(
                                       onPressed: () => Navigator.of(dialogContext).pop(true),
                                       child: Text(AppLocalizations.of(context).delete),
                                     ),
@@ -79,6 +84,10 @@ class RecipeDetailsPage extends ConsumerWidget {
 
                               if (confirmed ?? false) {
                                 await ref.read(recipeDetailsRepositoryProvider).deleteRecipe(recipeId).then((_) {
+                                  final authorUsername = userInfo.value?.username;
+                                  if (authorUsername != null) {
+                                    ref.invalidate(completeProfileProvider(authorUsername));
+                                  }
                                   if (context.mounted) {
                                     context.pop();
                                   }
@@ -99,6 +108,13 @@ class RecipeDetailsPage extends ConsumerWidget {
                     await ref.read(collectionsRepositoryProvider).addFavorite(recipeId);
                   }
                   ref.invalidate(favoritesProvider);
+                },
+              ),
+              IconButton(
+                icon: const Icon(Icons.bookmark_add),
+                tooltip: AppLocalizations.of(context).addToCollection,
+                onPressed: () async {
+                  await context.push(Routes.addToCollection, extra: recipeId);
                 },
               ),
             ],
@@ -159,7 +175,10 @@ class RecipeDetailsPage extends ConsumerWidget {
                 if (recipe.description != null) Text(recipe.description!, style: const TextStyle(fontSize: 16)),
                 const SizedBox(height: 20),
                 // Ingredients
-                const Text("Ingredients", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  AppLocalizations.of(context).ingredientsText,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 ...recipe.ingredients.map(
                   (ingredient) => Padding(
@@ -174,7 +193,10 @@ class RecipeDetailsPage extends ConsumerWidget {
                 ),
                 const SizedBox(height: 20),
                 // Steps
-                const Text("Steps", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text(
+                  AppLocalizations.of(context).stepsText,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
                 const SizedBox(height: 8),
                 ...recipe.steps.asMap().entries.map(
                   (entry) => Padding(

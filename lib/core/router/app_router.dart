@@ -8,6 +8,7 @@ import "../../features/auth/presentation/pages/login_page.dart";
 import "../../features/auth/presentation/pages/register_page.dart";
 import "../../features/auth/presentation/providers/auth_provider.dart";
 import "../../features/collection_details/presentation/pages/collection_details_page.dart";
+import "../../features/collections/presentation/pages/add_to_collection_page.dart";
 import "../../features/collections/presentation/pages/collection_create_page.dart";
 import "../../features/collections/presentation/pages/collections_page.dart";
 import "../../features/create_or_update_recipe/presentation/pages/create_or_update_recipe_page.dart";
@@ -82,6 +83,13 @@ GoRouter goRouter(Ref ref) {
         builder: (context, state) {
           final collectionId = state.extra as String?;
           return CollectionCreatePage(existingCollectionId: collectionId);
+        },
+      ),
+      GoRoute(
+        path: Routes.addToCollection,
+        builder: (context, state) {
+          final recipeId = state.extra! as String;
+          return AddToCollectionPage(recipeId: recipeId);
         },
       ),
       GoRoute(

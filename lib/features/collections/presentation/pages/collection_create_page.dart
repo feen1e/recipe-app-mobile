@@ -214,6 +214,8 @@ class _CollectionCreatePageState extends ConsumerState<CollectionCreatePage> {
                     onPressed: _submitting ? null : _onSubmit,
                     child: _submitting
                         ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                        : isEditing
+                        ? Text(AppLocalizations.of(context).editCollection)
                         : Text(AppLocalizations.of(context).createCollection),
                   ),
                 ),
@@ -247,6 +249,7 @@ class _CollectionCreatePageState extends ConsumerState<CollectionCreatePage> {
       }
 
       await ref.read(collectionsProvider.notifier).refresh();
+      ref.invalidate(collectionDetailsProvider(widget.existingCollectionId ?? ""));
 
       if (mounted) {
         context.pop();

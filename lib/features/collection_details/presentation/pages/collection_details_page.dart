@@ -4,7 +4,9 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../../auth/presentation/providers/auth_provider.dart";
+import "../../../collections/presentation/providers/collections_provider.dart";
 import "../providers/collection_details_provider.dart";
 
 class CollectionDetailsPage extends ConsumerWidget {
@@ -33,6 +35,52 @@ class CollectionDetailsPage extends ConsumerWidget {
                   await context.push(Routes.createOrEditCollection, extra: collectionDetails.id);
                 },
               ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
+                final confirm = await showDialog<bool>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: Text(AppLocalizations.of(context).confirmDeleteCollection),
+                    content: Text(AppLocalizations.of(context).areYouSureYouWantToDeleteCollection),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Navigator.of(context).pop(false),
+                        child: Text(AppLocalizations.of(context).cancel),
+                      ),
+                      ElevatedButton(
+                        onPressed: () => Navigator.of(context).pop(true),
+                        style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+                        child: Text(AppLocalizations.of(context).delete),
+                      ),
+                    ],
+                  ),
+                );
+
+                if (confirm ?? false) {
+                  try {
+                    final repository = ref.read(collectionDetailsRepositoryProvider);
+                    await repository.deleteCollection(collectionId);
+
+                    // Refresh collections list
+                    ref.invalidate(collectionsProvider);
+
+                    if (context.mounted) {
+                      context.pop();
+                    }
+                  } on Exception {
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(AppLocalizations.of(context).failedToDeleteCollection),
+                          backgroundColor: Colors.red,
+                        ),
+                      );
+                    }
+                  }
+                }
+              },
+            ),
           ],
         ),
         body: Column(

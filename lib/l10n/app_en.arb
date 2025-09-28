@@ -32,6 +32,8 @@
   "collections": "Collections",
   "recipes": "Recipes",
   "ratings": "Ratings",
+  "ingredientsText": "Ingredients",
+  "stepsText": "Steps",
   "createRecipePageTitleCreate": "Create Recipe",
   "createRecipePageTitleEdit": "Edit Recipe",
   "recipeImage": "Recipe Image",
@@ -81,8 +83,44 @@
   "profileAvatar": "Avatar",
   "profileBio": "Bio",
   "addedRecipes": "Recipes added to collection",
+  "addToCollection": "Add to Collection",
+  "errorLoadingCollectionDetails": "Error loading collection details",
+  "recipe": "recipe",
+  "recipeAddedToCollection": "Recipe added to {collectionName}",
+  "recipeRemovedFromCollection": "Recipe removed from {collectionName}",
+  "failedToAddRecipeToCollection": "Failed to add recipe to collection",
+  "failedToRemoveRecipeFromCollection": "Failed to remove recipe from collection",
+  "confirmDeleteCollection": "Delete Collection",
+  "areYouSureYouWantToDeleteCollection": "Are you sure you want to delete this collection? This action cannot be undone.",
+  "failedToDeleteCollection": "Failed to delete collection",
+  "@recipeAddedToCollection": {
+    "description": "Message shown when recipe is added to collection",
+    "placeholders": { "collectionName": {} }
+  },
+  "@recipeRemovedFromCollection": {
+    "description": "Message shown when recipe is removed from collection",
+    "placeholders": { "collectionName": {} }
+  },
+  "addToCollection": "Add to Collection",
+  "errorLoadingCollectionDetails": "Error loading collection details",
+  "recipe": "recipe",
+  "recipeAddedToCollection": "Recipe added to {collectionName}",
+  "recipeRemovedFromCollection": "Recipe removed from {collectionName}",
+  "failedToAddRecipeToCollection": "Failed to add recipe to collection",
+  "failedToRemoveRecipeFromCollection": "Failed to remove recipe from collection",
+  "switchLanguage": "Switch language",
+  "english": "English",
+  "polish": "Polski",
   "@greeting": {
     "description": "Greeting with a name parameter",
     "placeholders": { "name": {} }
+  },
+  "@recipeAddedToCollection": {
+    "description": "Message shown when recipe is added to collection",
+    "placeholders": { "collectionName": {} }
+  },
+  "@recipeRemovedFromCollection": {
+    "description": "Message shown when recipe is removed from collection",
+    "placeholders": { "collectionName": {} }
   }
 }

@@ -10,5 +10,6 @@ class Routes {
   static const recipeDetails = "/recipe-details";
   static const collectionDetails = "/collection-details";
   static const createOrEditCollection = "/create-collection";
+  static const addToCollection = "/add-to-collection";
   static const editProfile = "/edit-profile";
 }
