@@ -17,6 +17,7 @@
   "recipeFeed": "Recipe Feed",
   "discoverRecipesPage": "Discover Recipes",
   "profile": "Profile",
+  "editProfile": "Edit profile",
   "logout": "Logout",
   "myRecipes": "My Recipes",
   "noRecipesYet": "No recipes yet",
@@ -76,6 +77,9 @@
   "enterCollectionName": "Please enter a collection name",
   "collectionDescription": "Collection description",
   "addFromFavorites": "Add from favorites",
+  "username": "Username",
+  "profileAvatar": "Avatar",
+  "profileBio": "Bio",
   "addedRecipes": "Recipes added to collection",
   "@greeting": {
     "description": "Greeting with a name parameter",

@@ -86,13 +86,11 @@ class ProfileRepository {
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
 
-        // Return empty list for 404 (endpoint not implemented yet)
         if (statusCode == 404) {
           log("Ratings endpoint not found (404) - returning empty list");
           return [];
         }
 
-        // Throw for other HTTP errors
         final responseData = e.response!.data;
         final errorMessage =
             "Failed to fetch user ratings ($statusCode): ${responseData?.toString() ?? 'Unknown error'}";
@@ -104,8 +102,33 @@ class ProfileRepository {
       throw Exception("Failed to fetch user ratings: Unknown DioException");
     } on Exception catch (e) {
       log("Unexpected error fetching user ratings: $e");
-      // For any other unexpected errors, return empty list to keep UI working
       return [];
+    }
+  }
+
+  Future<Profile> updateProfile({String? username, String? bio, String? avatarUrl}) async {
+    try {
+      final body = <String, dynamic>{"username": ?username, "bio": ?bio, "avatarUrl": ?avatarUrl};
+
+      final response = await _dio.patch<Map<String, dynamic>>(ApiEndpoints.userProfile, data: body);
+
+      if (response.data != null) {
+        return Profile.fromJson(response.data!);
+      } else {
+        throw Exception("Failed to update profile: Empty response from server");
+      }
+    } on DioException catch (e) {
+      var errorMessage = "Failed to update profile";
+      if (e.response != null) {
+        final statusCode = e.response!.statusCode;
+        final responseData = e.response!.data;
+        errorMessage = "Failed to update profile ($statusCode): ${responseData?.toString() ?? 'Unknown error'}";
+      } else if (e.message != null) {
+        errorMessage = "Failed to update profile: ${e.message}";
+      }
+      throw Exception(errorMessage);
+    } catch (e) {
+      throw Exception("Failed to update profile: $e");
     }
   }
 }

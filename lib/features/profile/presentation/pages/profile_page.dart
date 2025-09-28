@@ -90,16 +90,28 @@ class ProfilePage extends ConsumerWidget {
         actions: [
           PopupMenuButton<String>(
             onSelected: (value) async {
-              if (value == "logout") {
-                final authNotifier = ref.read(authNotifierProvider.notifier);
-                await authNotifier.logout();
-              }
-              if (value == "theme") {
-                final themeNotifier = ref.read(themeNotifierProvider.notifier);
-                await themeNotifier.toggleTheme();
+              switch (value) {
+                case "edit_profile":
+                  await context.push(Routes.editProfile);
+                case "logout":
+                  final authNotifier = ref.read(authNotifierProvider.notifier);
+                  await authNotifier.logout();
+                case "theme":
+                  final themeNotifier = ref.read(themeNotifierProvider.notifier);
+                  await themeNotifier.toggleTheme();
               }
             },
             itemBuilder: (context) => [
+              PopupMenuItem<String>(
+                value: "edit_profile",
+                child: Row(
+                  children: [
+                    const Icon(Icons.edit),
+                    const SizedBox(width: 8),
+                    Text(AppLocalizations.of(context).editProfile),
+                  ],
+                ),
+              ),
               PopupMenuItem<String>(
                 value: "logout",
                 child: Row(

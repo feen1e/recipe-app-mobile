@@ -14,6 +14,7 @@ import "../../features/create_or_update_recipe/presentation/pages/create_or_upda
 import "../../features/discover_recipes/presentation/pages/discover_recipes_page.dart";
 import "../../features/home/presentation/pages/home_page.dart";
 import "../../features/navigation/presentation/pages/main_navigation_page.dart";
+import "../../features/profile/presentation/pages/profile_edit_page.dart";
 import "../../features/profile/presentation/pages/profile_page.dart";
 import "../../features/recipe_details/data/models/recipe.dart";
 import "../../features/recipe_details/presentation/pages/recipe_details_page.dart";
@@ -90,6 +91,7 @@ GoRouter goRouter(Ref ref) {
           return ProfilePage(username: username);
         },
       ),
+      GoRoute(path: Routes.editProfile, builder: (context, state) => const ProfileEditPage()),
     ],
   );
 }

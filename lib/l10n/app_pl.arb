@@ -17,6 +17,7 @@
   "recipeFeed": "Najnowsze przepisy",
   "discoverRecipesPage": "Odkrywaj przepisy",
   "profile": "Profil",
+  "editProfile": "Edytuj profil",
   "logout": "Wyloguj",
   "myRecipes": "Moje przepisy",
   "noRecipesYet": "Brak przepisów",
@@ -76,5 +77,8 @@
   "enterCollectionName": "Proszę podać nazwę kolekcji",
   "collectionDescription": "Opis kolekcji",
   "addFromFavorites": "Dodaj z ulubionych",
-  "addedRecipes": "Przepisy w kolekcji"
+  "addedRecipes": "Przepisy w kolekcji",
+  "username": "Nazwa użytkownika",
+  "profileAvatar": "Zdjęcie profilowe",
+  "profileBio": "Bio"
 }
