@@ -75,32 +75,39 @@ class _HomePageState extends ConsumerState<HomePage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // User Row
-                      Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundImage: avatarExists ? CachedNetworkImageProvider(recipe.author.avatarUrl!) : null,
-                            child: !avatarExists ? Text(recipe.author.username.substring(0, 1).toUpperCase()) : null,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            recipe.author.username,
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(width: 6),
-                          Text(
-                            isUpdated
-                                ? AppLocalizations.of(context).updatedRecipe
-                                : AppLocalizations.of(context).createdRecipe,
-                            style: const TextStyle(color: Colors.grey),
-                          ),
-                          Expanded(
-                            child: Text(
-                              textAlign: TextAlign.right,
-                              formattedTime,
+                      InkWell(
+                        onTap: () async {
+                          await context.push("${Routes.profile}/${recipe.author.username}");
+                        },
+                        child: Row(
+                          children: [
+                            CircleAvatar(
+                              backgroundImage: avatarExists
+                                  ? CachedNetworkImageProvider(recipe.author.avatarUrl!)
+                                  : null,
+                              child: !avatarExists ? Text(recipe.author.username.substring(0, 1).toUpperCase()) : null,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              recipe.author.username,
+                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              isUpdated
+                                  ? AppLocalizations.of(context).updatedRecipe
+                                  : AppLocalizations.of(context).createdRecipe,
                               style: const TextStyle(color: Colors.grey),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: Text(
+                                textAlign: TextAlign.right,
+                                formattedTime,
+                                style: const TextStyle(color: Colors.grey),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       const SizedBox(height: 8),
                       // Recipe Preview

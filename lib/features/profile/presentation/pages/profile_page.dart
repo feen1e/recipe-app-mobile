@@ -126,7 +126,7 @@ class ProfilePage extends ConsumerWidget {
         ],
       );
     } else {
-      return AppBar();
+      return AppBar(title: Text(AppLocalizations.of(context).profile));
     }
   }
 

@@ -83,6 +83,13 @@ GoRouter goRouter(Ref ref) {
           return CollectionCreatePage(existingCollectionId: collectionId);
         },
       ),
+      GoRoute(
+        path: "${Routes.profile}/:username",
+        builder: (context, state) {
+          final username = state.pathParameters["username"]!;
+          return ProfilePage(username: username);
+        },
+      ),
     ],
   );
 }
