@@ -52,37 +52,30 @@ class CreateOrUpdateRecipeRepository {
     }
   }
 
-  /// Converts an image URL to XFile for use as initial value in image picker
   Future<XFile?> getPhotoFromUrl(String imageUrl) async {
     try {
       _logger.info("Fetching image from URL: $imageUrl");
 
-      // Download the image as bytes
       final response = await _dio.get<List<int>>(imageUrl, options: Options(responseType: ResponseType.bytes));
 
       if (response.data == null) {
         throw Exception("Failed to download image: Empty response");
       }
 
-      // Get temporary directory
       final tempDir = await getTemporaryDirectory();
 
-      // Extract filename from URL or use a default
       final uri = Uri.parse(imageUrl);
       String fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "downloaded_image.jpg";
 
-      // Ensure the file has an extension
       if (!fileName.contains(".")) {
         fileName += ".jpg";
       }
 
-      // Create temporary file
       final tempFile = File("${tempDir.path}/$fileName");
       await tempFile.writeAsBytes(response.data!);
 
       _logger.info("Image downloaded and saved to: ${tempFile.path}");
 
-      // Return as XFile
       return XFile(tempFile.path);
     } on DioException catch (e) {
       var errorMessage = "Failed to download image from URL";
@@ -97,7 +90,7 @@ class CreateOrUpdateRecipeRepository {
       }
 
       _logger.severe(errorMessage);
-      return null; // Return null instead of throwing for easier handling
+      return null;
     } on Exception catch (e) {
       final errorMessage = "Failed to download image: Unexpected error - $e";
       _logger.severe(errorMessage);

@@ -28,13 +28,11 @@ class LatestRecipes extends _$LatestRecipes {
     if (currentState == null || !currentState.hasMore) return;
 
     try {
-      // Set load more loading state
       ref.read(loadMoreStateProvider.notifier).setLoading(loading: true);
 
       final repository = ref.read(recipesRepositoryProvider);
       final nextPage = await repository.getLatestRecipes(cursor: currentState.nextCursor, limit: 10);
 
-      // Combine the current recipes with the new ones
       final combinedRecipes = [...currentState.recipes, ...nextPage.recipes];
 
       final updatedResponse = RecipesResponseDto(
@@ -45,10 +43,8 @@ class LatestRecipes extends _$LatestRecipes {
 
       state = AsyncValue.data(updatedResponse);
     } on Exception catch (e) {
-      // Keep current data even on error
       log("Error loading more recipes: $e");
     } finally {
-      // Always clear the loading state
       ref.read(loadMoreStateProvider.notifier).setLoading(loading: false);
     }
   }
@@ -65,7 +61,6 @@ class LatestRecipes extends _$LatestRecipes {
   }
 }
 
-// Separate provider to track load more loading state
 @riverpod
 class LoadMoreState extends _$LoadMoreState {
   @override

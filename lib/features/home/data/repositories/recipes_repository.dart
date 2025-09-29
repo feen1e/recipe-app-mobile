@@ -1,5 +1,3 @@
-import "dart:developer";
-
 import "package:dio/dio.dart";
 import "../../../../core/constants/api_endpoints.dart";
 import "../models/post.dart";
@@ -21,13 +19,7 @@ class RecipesRepository {
         queryParams["limit"] = limit;
       }
 
-      log("Fetching latest recipes with params: $queryParams");
-      log("Endpoint: ${ApiEndpoints.recipesLatest}");
-
       final response = await _dio.get<Map<String, dynamic>>(ApiEndpoints.recipesLatest, queryParameters: queryParams);
-
-      log("Latest recipes response status: ${response.statusCode}");
-      log("Latest recipes response data: ${response.data}");
 
       if (response.data != null) {
         return RecipesResponseDto.fromJson(response.data!);
@@ -36,10 +28,6 @@ class RecipesRepository {
       }
     } on DioException catch (e) {
       var errorMessage = "Failed to fetch latest recipes";
-
-      log("DioException type: ${e.type}");
-      log("DioException message: ${e.message}");
-      log("DioException response: ${e.response?.data}");
 
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
@@ -53,7 +41,6 @@ class RecipesRepository {
 
       throw Exception(errorMessage);
     } catch (e) {
-      log("Unexpected error: $e");
       throw Exception("Failed to fetch latest recipes: Unexpected error - $e");
     }
   }

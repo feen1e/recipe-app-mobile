@@ -168,24 +168,18 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
         if (images != null && images.isNotEmpty) {
           final uploadRepo = ref.read(repositoryProvider);
           try {
-            debugPrint("[ProfileEdit] Uploading avatar image...");
             logger.warning("Uploading avatar image");
             avatarUrl = await uploadRepo.addPhoto(images.first as XFile, "avatars");
-            debugPrint("[ProfileEdit] Uploaded avatar image, url: $avatarUrl");
             logger.warning("Uploaded avatar image, url: $avatarUrl");
           } on Exception catch (e) {
-            debugPrint("[ProfileEdit] Failed to upload avatar image: $e");
+            logger.warning("Failed to upload avatar image: $e");
             logger.warning("Failed to upload avatar image: $e");
             avatarUrl = null;
           }
         }
       }
 
-      debugPrint("[ProfileEdit] Updating profile");
       logger.warning("Updating profile");
-      debugPrint(
-        "[ProfileEdit] Username: $username, Bio: ${_bioController.text.trim().isEmpty ? null : _bioController.text.trim()}, AvatarUrl: $avatarUrl",
-      );
       logger.warning(
         "Username: $username, Bio: ${_bioController.text.trim().isEmpty ? null : _bioController.text.trim()}, AvatarUrl: $avatarUrl",
       );
@@ -194,7 +188,6 @@ class _ProfileEditPageState extends ConsumerState<ProfileEditPage> {
         bio: _bioController.text.trim().isEmpty ? null : _bioController.text.trim(),
         avatarUrl: avatarUrl,
       );
-      debugPrint("[ProfileEdit] Profile updated");
       logger.warning("Profile updated");
 
       await ref.read(completeProfileProvider(username).notifier).refresh(username);

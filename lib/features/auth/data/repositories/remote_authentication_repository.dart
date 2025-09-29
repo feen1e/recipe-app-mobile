@@ -1,5 +1,3 @@
-import "dart:developer";
-
 import "package:dio/dio.dart";
 import "../../../../core/config/app_config.dart";
 import "../../../../core/constants/api_endpoints.dart";
@@ -24,14 +22,7 @@ class RemoteAuthenticationRepository {
   Future<AuthToken> login({required String identifier, required String password}) async {
     try {
       final loginData = LoginRequest(identifier: identifier, password: password).toJson();
-      log("Login request data: $loginData");
-      log("Login endpoint: ${ApiEndpoints.authLogin}");
-      log("Base URL: ${_dio.options.baseUrl}");
-
       final response = await _dio.post<Map<String, dynamic>>(ApiEndpoints.authLogin, data: loginData);
-
-      log("Login response status: ${response.statusCode}");
-      log("Login response data: ${response.data}");
 
       if (response.data != null) {
         return AuthToken.fromJson(response.data!);
@@ -40,10 +31,6 @@ class RemoteAuthenticationRepository {
       }
     } on DioException catch (e) {
       var errorMessage = "Login failed";
-
-      log("DioException type: ${e.type}");
-      log("DioException message: ${e.message}");
-      log("DioException response: ${e.response?.data}");
 
       if (e.response != null) {
         final statusCode = e.response!.statusCode;
@@ -57,7 +44,6 @@ class RemoteAuthenticationRepository {
 
       throw Exception(errorMessage);
     } catch (e) {
-      log("Unexpected error: $e");
       throw Exception("Login failed: Unexpected error - $e");
     }
   }
