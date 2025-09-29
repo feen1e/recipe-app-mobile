@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../data/models/auth_state.dart";
 import "../providers/auth_provider.dart";
 
@@ -11,7 +12,7 @@ class LoginPage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final emailController = TextEditingController();
+    final usernameOrEmailController = TextEditingController();
     final passwordController = TextEditingController();
 
     ref.listen<AuthState>(authNotifierProvider, (previous, next) {
@@ -20,7 +21,9 @@ class LoginPage extends ConsumerWidget {
           context.go(Routes.home);
         },
         error: (message) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Błąd logowania: $message")));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).loginError(message))));
         },
         orElse: () {},
       );
@@ -33,33 +36,39 @@ class LoginPage extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Zaloguj się", style: Theme.of(context).textTheme.headlineMedium),
+              Text(AppLocalizations.of(context).loginTitle, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 64),
               TextField(
-                controller: emailController,
-                decoration: const InputDecoration(labelText: "E-mail", hintText: "Wprowadź adres e-mail"),
+                controller: usernameOrEmailController,
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).usernameOrEmail,
+                  hintText: AppLocalizations.of(context).enterUsernameOrEmail,
+                ),
               ),
               const SizedBox(height: 24),
               TextField(
                 controller: passwordController,
-                decoration: const InputDecoration(labelText: "Hasło", hintText: "Wprowadź hasło"),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).password,
+                  hintText: AppLocalizations.of(context).enterPassword,
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () async {
-                  final email = emailController.text.trim();
+                  final usernameOrEmail = usernameOrEmailController.text.trim();
                   final password = passwordController.text.trim();
-                  if (email.isNotEmpty && password.isNotEmpty) {
+                  if (usernameOrEmail.isNotEmpty && password.isNotEmpty) {
                     final authNotifier = ref.read(authNotifierProvider.notifier);
-                    await authNotifier.login(email, password);
+                    await authNotifier.login(usernameOrEmail, password);
                   } else {
                     ScaffoldMessenger.of(
                       context,
-                    ).showSnackBar(const SnackBar(content: Text("Wypełnij wszystkie pola")));
+                    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).fillAllFields)));
                   }
                 },
-                child: const Text("Zaloguj"),
+                child: Text(AppLocalizations.of(context).login),
               ),
               const SizedBox(height: 16),
               TextButton(
@@ -67,7 +76,7 @@ class LoginPage extends ConsumerWidget {
                   context.go(Routes.register);
                 },
                 child: Text(
-                  "Nie masz konta?\n Zarejestruj się",
+                  AppLocalizations.of(context).dontHaveAccount,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,

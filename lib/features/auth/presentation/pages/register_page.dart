@@ -3,6 +3,7 @@ import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:go_router/go_router.dart";
 
 import "../../../../core/constants/routes.dart";
+import "../../../../l10n/app_localizations.dart";
 import "../../data/models/auth_state.dart";
 import "../providers/auth_provider.dart";
 
@@ -24,7 +25,9 @@ class RegisterPage extends ConsumerWidget {
           context.go(Routes.home);
         },
         error: (message) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Błąd rejestracji: $message")));
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).registerError(message))));
         },
         orElse: () {},
       );
@@ -37,30 +40,39 @@ class RegisterPage extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text("Zarejestruj się", style: Theme.of(context).textTheme.headlineMedium),
+              Text(AppLocalizations.of(context).registerTitle, style: Theme.of(context).textTheme.headlineMedium),
               const SizedBox(height: 64),
               TextField(
                 controller: usernameController,
-                decoration: const InputDecoration(
-                  labelText: "Nazwa użytkownika",
-                  hintText: "Wprowadź nazwę użytkownika",
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).username,
+                  hintText: AppLocalizations.of(context).username,
                 ),
               ),
               const SizedBox(height: 24),
               TextField(
                 controller: emailController,
-                decoration: const InputDecoration(labelText: "E-mail", hintText: "Wprowadź adres e-mail"),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).email,
+                  hintText: AppLocalizations.of(context).enterEmail,
+                ),
               ),
               const SizedBox(height: 24),
               TextField(
                 controller: passwordController,
-                decoration: const InputDecoration(labelText: "Hasło", hintText: "Wprowadź hasło"),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).password,
+                  hintText: AppLocalizations.of(context).enterPassword,
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 24),
               TextField(
                 controller: confirmPasswordController,
-                decoration: const InputDecoration(labelText: "Potwierdź hasło", hintText: "Potwierdź hasło"),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context).confirmPassword,
+                  hintText: AppLocalizations.of(context).confirmPasswordHint,
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 32),
@@ -71,27 +83,29 @@ class RegisterPage extends ConsumerWidget {
                   final password = passwordController.text.trim();
                   final confirmPassword = confirmPasswordController.text.trim();
 
-                  if (email.isNotEmpty && password.isNotEmpty && confirmPassword.isNotEmpty) {
+                  if (username.isNotEmpty && email.isNotEmpty && password.isNotEmpty && confirmPassword.isNotEmpty) {
                     if (password == confirmPassword) {
                       await authNotifier.register(username, email, password);
                     } else {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Hasła się różnią")));
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).passwordsDoNotMatch)));
                     }
                   } else {
                     ScaffoldMessenger.of(
                       context,
-                    ).showSnackBar(const SnackBar(content: Text("Wypełnij wszystkie pola")));
+                    ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).fillAllFields)));
                   }
                 },
-                child: const Text("Zarejestruj"),
+                child: Text(AppLocalizations.of(context).register),
               ),
               const SizedBox(height: 16),
               TextButton(
                 onPressed: () {
-                  context.go("/login");
+                  context.go(Routes.login);
                 },
                 child: Text(
-                  "Masz już konto?\nZaloguj się",
+                  AppLocalizations.of(context).alreadyHaveAccount,
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                     color: Theme.of(context).colorScheme.primary,

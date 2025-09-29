@@ -204,6 +204,7 @@ class RecipeDetailsPage extends ConsumerWidget {
                     child: Text("${entry.key + 1}. ${entry.value}"),
                   ),
                 ),
+                const SizedBox(height: 40),
               ],
             ),
           ),

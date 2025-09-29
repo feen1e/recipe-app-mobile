@@ -111,9 +111,35 @@
   "switchLanguage": "Switch language",
   "english": "English",
   "polish": "Polski",
+  "login": "Login",
+  "register": "Register",
+  "loginTitle": "Sign In",
+  "registerTitle": "Sign Up",
+  "usernameOrEmail": "Username or Email",
+  "enterUsernameOrEmail": "Enter username or email",
+  "email": "Email",
+  "enterEmail": "Enter email address",
+  "password": "Password",
+  "enterPassword": "Enter password",
+  "confirmPassword": "Confirm Password",
+  "confirmPasswordHint": "Confirm your password",
+  "fillAllFields": "Please fill all fields",
+  "passwordsDoNotMatch": "Passwords do not match",
+  "loginError": "Login error: {error}",
+  "registerError": "Registration error: {error}",
+  "dontHaveAccount": "Don't have an account?\nSign up",
+  "alreadyHaveAccount": "Already have an account?\nSign in",
   "@greeting": {
     "description": "Greeting with a name parameter",
     "placeholders": { "name": {} }
+  },
+  "@loginError": {
+    "description": "Login error message with error parameter",
+    "placeholders": { "error": {} }
+  },
+  "@registerError": {
+    "description": "Registration error message with error parameter",
+    "placeholders": { "error": {} }
   },
   "@recipeAddedToCollection": {
     "description": "Message shown when recipe is added to collection",
